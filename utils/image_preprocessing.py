@@ -68,5 +68,6 @@ def process_images_in_folder(folder_path):
             normalized_vector = normalize_image(image_vector)
             normalized_vectors.append(normalized_vector)
     # Stack vectors vertically into a single array
-    normalized_images = np.vstack(normalized_vectors)
+    # normalized_images = np.vstack(normalized_vectors)
+    normalized_images = np.hstack(normalized_vectors)
     return normalized_images

@@ -1,3 +1,4 @@
+import os
 import numpy as np
 
 from utils.image_preprocessing import process_images_in_folder
@@ -14,6 +15,16 @@ def shuffle_dataset(X, Y):
     X_shuffled -- shuffled X array
     Y_shuffled -- shuffled Y array
     """
+    # TODO verify new reshufle strategy
+    m = X.shape[1]                  # number of training examples
+    permutation = list(np.random.permutation(m))
+    X_shuffled = X[:, permutation]
+    Y_shuffled = Y[:, permutation].reshape((1, m))
+    print("X_shuffled", X_shuffled.shape)
+    print("Y_shuffled", Y_shuffled.shape)
+    return X_shuffled, Y_shuffled
+
+
     indices = np.arange(X.shape[0])
     np.random.shuffle(indices)
     X_shuffled = X[indices]
@@ -22,6 +33,7 @@ def shuffle_dataset(X, Y):
     print("Y_shuffled", Y_shuffled.shape)
     print("Dataset shuffled")
     return X_shuffled, Y_shuffled
+
 
 def prepare_dataset(dog_folder_path, cat_folder_path):
     """
@@ -36,27 +48,27 @@ def prepare_dataset(dog_folder_path, cat_folder_path):
     X -- a numpy array of shape (number of images, length*height*depth) containing the normalized image vectors
     Y -- a numpy array of shape (number of images, 1) containing the labels (1 for dog, 0 for cat)
     """
-    print("Processing dog images...")
-    # Process dog images
     dog_images = process_images_in_folder(dog_folder_path)
     print("dog images shape: ", dog_images.shape)
-    num_dogs = len(dog_images)
+    num_dogs = dog_images.shape[1]
     print("dog images number: ", num_dogs)
-    dog_labels = np.ones((num_dogs, 1))
+    dog_labels = np.ones((1, num_dogs))
     print("dog labels shape:", dog_labels.shape)
 
     print("Processing cat images...")
     # Process cat images
     cat_images = process_images_in_folder(cat_folder_path)
-    num_cats = len(cat_images)
-    cat_labels = np.zeros((num_cats, 1))
+    print("cat images shape: ", cat_images.shape)
+    num_cats = cat_images.shape[1]
+    print("cat images number: ", num_cats)
+    cat_labels = np.zeros((1, num_cats))
     print("cat labels shape:", cat_labels.shape)
 
     # Combine images and labels
     # The reshape assumes that both dog_images and cat_images have the same shape
-    X = np.concatenate((dog_images, cat_images), axis=0)
+    X = np.concatenate((dog_images, cat_images), axis=1)
     print("X shape:", X.shape)
-    Y = np.concatenate((dog_labels, cat_labels), axis=0)
+    Y = np.concatenate((dog_labels, cat_labels), axis=1)
     print("Y shape:", Y.shape)
 
     
