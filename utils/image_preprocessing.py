@@ -25,14 +25,7 @@ def image2vector(image):
     Returns:
     v -- a vector of shape (length*height*depth, 1)
     """
-    
-    # (≈ 1 line of code)
-    # v =
-    # YOUR CODE STARTS HERE
     v = image.reshape((image.shape[0]*image.shape[1]*image.shape[2]),1)
-    
-    # YOUR CODE ENDS HERE
-    
     return v
 
 def normalize_image(image_vector):
@@ -56,9 +49,8 @@ def process_images_in_folder(folder_path):
     folder_path -- path to the folder containing the images
     
     Returns:
-    normalized_images -- a NumPy array of shape (number of images, length*height*depth) containing normalized vectors
+    normalized_images -- a NumPy array of shape (length*height*depth, number of images) containing normalized vectors
     """
-    #OJO NOT ALL IMAGES HAVE THE SAME SIZE
     normalized_vectors = []
     for filename in os.listdir(folder_path):
         if filename.endswith(".jpg"):
@@ -67,7 +59,6 @@ def process_images_in_folder(folder_path):
             image_vector = image2vector(image_array)
             normalized_vector = normalize_image(image_vector)
             normalized_vectors.append(normalized_vector)
-    # Stack vectors vertically into a single array
-    # normalized_images = np.vstack(normalized_vectors)
+    # Stack vectors horizontaly to get an array with shape (length*height*depth, number of images) 
     normalized_images = np.hstack(normalized_vectors)
     return normalized_images

@@ -2,41 +2,44 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from utils.neural_network import L_layer_model
-from utils.train_set_processing import prepare_dataset
+from utils.prepare_dataset import prepare_dataset
 
+def get_model_hyperparameters(X_shape):
+    """
+    Defines the hyperparameters for the neural network model.
+
+    Returns:
+        layers_dims: A tuple containing the dimensions of each layer in the network.
+        learning_rate: The learning rate to use for training the network.
+    """
+    if X_shape and X_shape[1] > 0:
+        n_x = X_shape[0]
+    else:
+        raise ValueError('The train set is empty. Please check your path to the train set and the files in the folder.')
+    n_h_1 = 10
+    n_h_2 = 20
+    n_h_3 = 10
+    n_y = 1  # Set a single output node for the classifier
+
+    layers_dims = (n_x, n_h_1, n_h_2, n_h_3, n_y)
+    learning_rate = 0.0075
+
+    return layers_dims, learning_rate
 
 def main():
-
-    # Get input and treat it correctly
-
 
     path_to_dog_train_set = "/Users/jan.escorza.fuertes.prv/Repos/puppy-detector/data/training_set/dogs"
     path_to_cat_train_set = "/Users/jan.escorza.fuertes.prv/Repos/puppy-detector/data/training_set/cats"
 
     print("Preparing dataset...")
     train_x, train_y = prepare_dataset(path_to_dog_train_set, path_to_cat_train_set)
-    print("Images: ", train_x.shape, "Labels: ", train_y.shape)
     print("Dataset prepared")
-    learning_rate = 0.0075
 
-    # n_x Assuming the images are of the same size within the train set
-    if len(train_x) > 0:
-        n_x = train_x[0].shape[0]
-    else:
-        raise ValueError('The train set is empty. Please check your path to the train set and the files in the folder.')
-    print("n_x:", n_x)
-    # Set a single output node for the classifier
-    # TODO review what is the required size for n_h_1
-    n_h_1 = 10
-    # n_h_1 = n_x
-    n_h_2 = 20
-    n_h_3 = 10
-    n_y = 1 
-    #set the dimensions of input layer, hidden layers (add L values) and output layer
-    layers_dims = (n_x, n_h_1, n_h_2, n_h_3, n_y) 
-    
+    print("Prepare hyperparameters...")
+    layers_dims, learning_rate = get_model_hyperparameters(train_x.shape)
+    print("Hyperparameters prepared")
+
     print("Model first run with 1 iteration....")
-    # Initialize and run the model
     parameters, costs = L_layer_model(train_x, train_y, layers_dims, num_iterations = 1, print_cost = False)
 
     print("Cost after first iteration: " + str(costs[0]))
