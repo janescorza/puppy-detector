@@ -20,14 +20,12 @@ def initialize_parameters_deep(layer_dims):
     L = len(layer_dims) # number of layers in the network
 
     for l in range(1, L):
-        #(≈ 2 lines of code)
-        # parameters['W' + str(l)] = ...
-        # parameters['b' + str(l)] = ...
-        # YOUR CODE STARTS HERE
+
         parameters["W" + str(l)] = np.random.randn(layer_dims[l], layer_dims[l-1]) * 0.01
         parameters["b" + str(l)] = np.zeros((layer_dims[l], 1))
                 
-        # YOUR CODE ENDS HERE
+        print(f"Shape of W{l}: {parameters['W' + str(l)].shape}")
+        print(f"Shape of b{l}: {parameters['b' + str(l)].shape}")
 
         assert(parameters['W' + str(l)].shape == (layer_dims[l], layer_dims[l - 1]))
         assert(parameters['b' + str(l)].shape == (layer_dims[l], 1))
@@ -64,19 +62,15 @@ def sigmoid(z):
 
     Arguments:
     z -- A scalar or numpy array of any size.
-
+    
     Return:
     s -- sigmoid(z)
+    cache -- a tuple containing "Z"
     """
-
-    #(≈ 1 line of code)
-    # s = ...
-    # YOUR CODE STARTS HERE
     s = 1/(1+np.exp(-z))
-    
-    # YOUR CODE ENDS HERE
-    
-    return s
+    cache = z
+    return s, cache
+
 
 def relu(z):
     """
@@ -87,9 +81,11 @@ def relu(z):
 
     Return:
     r -- ReLU(z)
+    cache -- a tuple containing "Z"
     """
     r = np.maximum(0, z)
-    return r
+    cache = z
+    return r, cache
 
 def linear_activation_forward(A_prev, W, b, activation):
     """
@@ -117,14 +113,12 @@ def linear_activation_forward(A_prev, W, b, activation):
         # YOUR CODE ENDS HERE
     
     elif activation == "relu":
-        #(≈ 2 lines of code)
-        # Z, linear_cache = ...
-        # A, activation_cache = ...
-        # YOUR CODE STARTS HERE
         Z, linear_cache = linear_forward(A_prev, W, b)
-        A, activation_cache = relu(Z)
-        
-        # YOUR CODE ENDS HERE
+        print(f"Shape of Z: {Z.shape}")
+        print(f"Shape of A_prev: {A_prev.shape}")
+        print(f"Shape of W: {W.shape}")
+        print(f"Shape of b: {b.shape}")
+        A, activation_cache = relu(Z) 
     cache = (linear_cache, activation_cache)
 
     return A, cache
@@ -144,20 +138,15 @@ def L_model_forward(X, parameters):
     """
 
     caches = []
-    A = X
-    L = len(parameters) // 2                  # number of layers in the neural network
+    A = X # activations in the first layer (input data)
+    L = len(parameters) // 2 # number of layers in the neural network
     
     # Implement [LINEAR -> RELU]*(L-1). Add "cache" to the "caches" list.
     # The for loop starts at 1 because layer 0 is the input
     for l in range(1, L):
         A_prev = A 
-        #(≈ 2 lines of code)
-        # A, cache = ...
-        # caches ...
-        # YOUR CODE STARTS HERE
         A, cache = linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], activation = "relu")
         caches.append(cache)
-        # YOUR CODE ENDS HERE
     # Implement LINEAR -> SIGMOID. Add "cache" to the "caches" list.
     #(≈ 2 lines of code)
     # AL, cache = ...
@@ -395,7 +384,7 @@ def L_layer_model(X, Y, layers_dims, learning_rate = 0.0075, num_iterations = 30
     
     Arguments:
     X -- input data, of shape (n_x, number of examples)
-    Y -- true "label" vector (containing 1 if cat, 0 if non-cat), of shape (1, number of examples)
+    Y -- true "label" vector (containing 1 if dog, 0 if non-dog), of shape (1, number of examples)
     layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
     learning_rate -- learning rate of the gradient descent update rule
     num_iterations -- number of iterations of the optimization loop
