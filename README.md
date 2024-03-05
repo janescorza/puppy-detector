@@ -20,7 +20,7 @@ This repository houses the code for a **puppy detector** built entirely from scr
    ```
 3. **Run the script:**
    ```bash
-   python puppy_detector.py
+   python3 puppy_detector.py
    ```
 
 **Disclaimer:**
