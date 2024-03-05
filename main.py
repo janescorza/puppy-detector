@@ -17,8 +17,8 @@ def get_model_hyperparameters(X_shape):
     else:
         raise ValueError('The train set is empty. Please check your path to the train set and the files in the folder.')
     n_h_1 = 10
-    n_h_2 = 20
-    n_h_3 = 10
+    n_h_2 = 30
+    n_h_3 = 20
     n_y = 1  # Set a single output node for the classifier
 
     layers_dims = (n_x, n_h_1, n_h_2, n_h_3, n_y)

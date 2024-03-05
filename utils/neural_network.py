@@ -57,6 +57,7 @@ def linear_forward(A, W, b):
     return Z, cache
 
 def sigmoid(z):
+    print("sigmoid")
     """
     Compute the sigmoid of z
 
@@ -69,10 +70,13 @@ def sigmoid(z):
     """
     s = 1/(1+np.exp(-z))
     cache = z
+    print(f"Shape of s: {s.shape}")
+    print(f"Shape of z: {z.shape}")
     return s, cache
 
 
 def relu(z):
+    print("relu")
     """
     Compute the ReLU of z
 
@@ -85,6 +89,8 @@ def relu(z):
     """
     r = np.maximum(0, z)
     cache = z
+    print(f"Shape of s: {r.shape}")
+    print(f"Shape of z: {z.shape}")
     return r, cache
 
 def linear_activation_forward(A_prev, W, b, activation):
@@ -114,10 +120,6 @@ def linear_activation_forward(A_prev, W, b, activation):
     
     elif activation == "relu":
         Z, linear_cache = linear_forward(A_prev, W, b)
-        print(f"Shape of Z: {Z.shape}")
-        print(f"Shape of A_prev: {A_prev.shape}")
-        print(f"Shape of W: {W.shape}")
-        print(f"Shape of b: {b.shape}")
         A, activation_cache = relu(Z) 
     cache = (linear_cache, activation_cache)
 
@@ -214,6 +216,7 @@ def linear_backward(dZ, cache):
     return dA_prev, dW, db
 
 def relu_backward(dA, Z):
+    print("relu_backward")
     """
     Compute the gradient of the ReLU function
 
@@ -225,6 +228,9 @@ def relu_backward(dA, Z):
     dZ -- Gradient of the cost with respect to Z
     """
     dZ = np.array(dA, copy=True) # just converting dz to a correct object.
+    print(f"Shape of dA: {dA.shape}")
+    print(f"Shape of dZ: {dZ.shape}")
+    print(f"Shape of Z: {Z.shape}")
     dZ[Z <= 0] = 0
     return dZ
 
@@ -239,7 +245,7 @@ def sigmoid_backward(dA, Z):
     Returns:
     dZ -- Gradient of the cost with respect to Z
     """
-    s = sigmoid(Z)
+    s, cache = sigmoid(Z)
     dZ = dA * s * (1 - s)
     return dZ
 
@@ -283,6 +289,7 @@ def linear_activation_backward(dA, cache, activation):
     return dA_prev, dW, db
 
 def L_model_backward(AL, Y, caches):
+    print("L_model_backward")
     """
     Implement the backward propagation for the [LINEAR->RELU] * (L-1) -> LINEAR -> SIGMOID group
     
@@ -303,13 +310,11 @@ def L_model_backward(AL, Y, caches):
     L = len(caches) # the number of layers
     m = AL.shape[1]
     Y = Y.reshape(AL.shape) # after this line, Y is the same shape as AL
-    
     # Initializing the backpropagation
     #(1 line of code)
     # dAL = ...
     # YOUR CODE STARTS HERE
     dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL)) # derivative of cost with respect to AL
-
     
     # YOUR CODE ENDS HERE
     
@@ -331,6 +336,10 @@ def L_model_backward(AL, Y, caches):
     
     # Loop from l=L-2 to l=0
     for l in reversed(range(L-1)):
+        print(f"l: {l}")
+        print(f"L: {L}")
+        print(f"grads[dA + str(L-1)]: { grads["dA" + str(L-1)].shape}")
+        print(f"grads[dA + str(l+1)]: { grads["dA" + str(l+1)].shape}")
         # lth layer: (RELU -> LINEAR) gradients.
         # Inputs: "grads["dA" + str(l + 1)], current_cache". Outputs: "grads["dA" + str(l)] , grads["dW" + str(l + 1)] , grads["db" + str(l + 1)] 
         #(approx. 5 lines)
@@ -341,7 +350,8 @@ def L_model_backward(AL, Y, caches):
         # grads["db" + str(l + 1)] = ...
         # YOUR CODE STARTS HERE
         current_cache = caches[l]
-        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(grads["dA" + str(L-1)], current_cache, "relu")
+        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(grads["dA" + str(l+1)], current_cache, "relu")
+        # dA_prev_temp, dW_temp, db_temp = linear_activation_backward(grads["dA" + str(L-1)], current_cache, "relu")
         grads["dA" + str(l)] = dA_prev_temp
         grads["dW" + str(l+1)] = dW_temp
         grads["db" + str(l+1)] = db_temp
