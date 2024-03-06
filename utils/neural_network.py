@@ -1,7 +1,8 @@
 
 import copy
 import numpy as np
-
+import math
+import matplotlib.pyplot as plt
 
 
 def initialize_parameters_deep(layer_dims):
@@ -15,7 +16,6 @@ def initialize_parameters_deep(layer_dims):
                     bl -- bias vector of shape (layer_dims[l], 1)
     """
     
-    # np.random.seed(3)
     parameters = {}
     L = len(layer_dims) # number of layers in the network
 
@@ -87,6 +87,48 @@ def initialize_adam(parameters) :
         s["db" + str(l)] = np.zeros(parameters["b" + str(l)].shape)
         
     return v, s
+
+def random_mini_batches(X, Y, mini_batch_size = 64):
+    """
+    Creates a list of random minibatches from (X, Y)
+    
+    Arguments:
+    X -- input data, of shape (input size, number of examples)
+    Y -- true "label" vector (1 for blue dot / 0 for red dot), of shape (1, number of examples)
+    mini_batch_size -- size of the mini-batches, integer
+    
+    Returns:
+    mini_batches -- list of synchronous (mini_batch_X, mini_batch_Y)
+    """
+    
+    m = X.shape[1]      # number of training examples
+    mini_batches = []
+
+    # Step 1: Shuffle (X, Y)
+    permutation = list(np.random.permutation(m))
+    shuffled_X = X[:, permutation]
+    shuffled_Y = Y[:, permutation].reshape((1, m))
+
+    inc = mini_batch_size
+
+    # Step 1 - Partition (shuffled_X, shuffled_Y).
+    # Cases with a complete mini batch size only i.e each of 64 examples.
+    num_complete_minibatches = math.floor(m / mini_batch_size) # number of mini batches of size mini_batch_size in your partitionning
+    for k in range(0, num_complete_minibatches):
+        mini_batch_X = shuffled_X[:,k*inc:(k+1)*inc]
+        mini_batch_Y = shuffled_Y[:,k*inc:(k+1)*inc]
+        mini_batch = (mini_batch_X, mini_batch_Y)
+        mini_batches.append(mini_batch)
+    
+    # For handling the end case (last mini-batch < mini_batch_size i.e less than 64)
+    if m % mini_batch_size != 0:
+
+        mini_batch_X = shuffled_X[:,(k+1)*inc:((k+1)*inc)+(m % mini_batch_size)]
+        mini_batch_Y = shuffled_Y[:,(k+1)*inc:((k+1)*inc)+(m % mini_batch_size)]
+        mini_batch = (mini_batch_X, mini_batch_Y)
+        mini_batches.append(mini_batch)
+    
+    return mini_batches
 
 def update_parameters_with_adam(parameters, grads, v, s, t, learning_rate = 0.01,
                                 beta1 = 0.9, beta2 = 0.999,  epsilon = 1e-8):
@@ -227,7 +269,7 @@ def linear_activation_forward(A_prev, W, b, activation):
 
     return A, cache
 
-def L_model_forward(X, parameters):
+def L_model_forward(X, parameters, layers_dims):
     """
     Implement forward propagation for the [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID computation
     
@@ -244,12 +286,18 @@ def L_model_forward(X, parameters):
     caches = []
     A = X # activations in the first layer (input data)
     L = len(parameters) // 2 # number of layers in the neural network
+    # print("Activations in the first layer (input data):", A.shape)
+    # print("Number of layers in the neural network:", L)
     
     # Implement [LINEAR -> RELU]*(L-1). Add "cache" to the "caches" list.
     # The for loop starts at 1 because layer 0 is the input
     for l in range(1, L):
         A_prev = A 
+        # print("Forward propagation for layer ", l)
+        # print("Validate sizing for W: ", parameters['W' + str(l)].shape ,"should be", (layers_dims[l], layers_dims[l-1]))
+        # print("Validate sizing for b: ", parameters['b' + str(l)].shape ,"should be", (layers_dims[l], 1))
         A, cache = linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], activation = "relu")
+        # print("Activations for layer ", l, ": ", A.shape)
         caches.append(cache)
     # Implement LINEAR -> SIGMOID. Add "cache" to the "caches" list.
     #(≈ 2 lines of code)
@@ -406,6 +454,8 @@ def L_model_backward(AL, Y, caches):
     grads = {}
     L = len(caches) # the number of layers
     m = AL.shape[1]
+    # print("AL shape in L_model_backward", AL.shape)
+    # print("Y shape in L_model_backward", Y.shape)
     Y = Y.reshape(AL.shape) # after this line, Y is the same shape as AL
     # Initializing the backpropagation
     #(1 line of code)
@@ -481,73 +531,92 @@ def update_parameters(params, grads, learning_rate):
 
 
 
-def L_layer_model(X, Y, layers_dims, learning_rate = 0.0075, num_iterations = 3000, print_cost=False):
+def L_layer_model(X, Y, layers_dims, learning_rate = 0.0007, mini_batch_size = 64,
+          beta1 = 0.9, beta2 = 0.999,  epsilon = 1e-8, num_epochs = 5000, print_cost = True):
     """
     Implements a L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
     
     Arguments:
     X -- input data, of shape (n_x, number of examples)
     Y -- true "label" vector (containing 1 if dog, 0 if non-dog), of shape (1, number of examples)
+    number_of_examples -- total number of examples across all minibatches
     layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
     learning_rate -- learning rate of the gradient descent update rule
+    mini_batch_size -- the size of a mini batch
     num_iterations -- number of iterations of the optimization loop
-    print_cost -- if True, it prints the cost every 100 steps
+    beta1 -- Exponential decay hyperparameter for the past gradients estimates 
+    beta2 -- Exponential decay hyperparameter for the past squared gradients estimates 
+    epsilon -- hyperparameter preventing division by zero in Adam updates
+    num_epochs -- number of epochs
+    print_cost -- if True, it prints the cost every 100 epochs
     
     Returns:
     parameters -- parameters learnt by the model. They can then be used to predict.
     """
 
-    np.random.seed(1) # TODO: remove once I controlled seed
-    costs = []                         # keep track of cost
+    L = len(layers_dims)             # number of layers in the neural networks
+    costs = []                       # to keep track of the cost
+    t = 0                            # initializing the counter required for Adam update
+    m = X.shape[1]           # number of examples accross all minibatches
     
     # Parameters initialization.
     # parameters = initialize_parameters_deep(layers_dims)
     parameters = initialize_parameters_he(layers_dims)
 
     v,s = initialize_adam(parameters)
-   
-    parameters, v, s, v_corrected, s_corrected = update_parameters_with_adam(parameters, grads, v, s, learning_rate)
+
+    for i in range(num_epochs):
+
+        # Define the random minibatches.
+        print("Prepare minibatches...")
+        minibatches = random_mini_batches(X, Y, mini_batch_size)
+        print("Total number of minibatches:", len(minibatches))
+        cost_total = 0
+
+        for minibatch in minibatches:
+            # Select a minibatch
+            (minibatch_X, minibatch_Y) = minibatch
+
+            # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
+            # AL, caches = L_model_forward(X, parameters)
+            # print("mini batch X shape:", minibatch_X.shape)
+            AL, caches = L_model_forward(minibatch_X, parameters, layers_dims)
+            # print("AL shape:", AL.shape)
+
+            # Compute cost and add to the cost total
+            cost_total += compute_cost(AL, minibatch_Y)
+                    
+            # Backward propagation
+            # print("minibatch X shape:", minibatch_X.shape)
+            # print("minibatch Y shape:", minibatch_Y.shape)
+            # print("Activation Layer shape before L_model_backward:", AL.shape)
+            grads = L_model_backward(AL, minibatch_Y, caches)
+            # grads = L_model_backward(minibatch_X, minibatch_Y, caches)
     
-    # Loop (gradient descent)
-    for i in range(0, num_iterations):
-        print("Iteration: ", i)
-        # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
-        #(≈ 1 line of code)
-        # AL, caches = ...
-        # YOUR CODE STARTS HERE
-        AL, caches = L_model_forward(X, parameters)
+            # Update parameters.
+            # parameters= update_parameters(parameters, grads, learning_rate)
+            t = t + 1 # Adam counter
+            parameters, v, s, _, _ = update_parameters_with_adam(parameters, grads, v, s, t, learning_rate, beta1, beta2,  epsilon)
         
-        # YOUR CODE ENDS HERE
-        
-        # Compute cost.
-        #(≈ 1 line of code)
-        # cost = ...
-        # YOUR CODE STARTS HERE
-        cost = compute_cost(AL, Y)
-        
-        # YOUR CODE ENDS HERE
+        cost_avg = cost_total / m
+        # Print the cost every 1 epoch
+        if print_cost and i % 1 == 0:
+            print("🚀 Cost after epoch %i: %f" %(i, cost_avg))
+        # Print the cost every 100 epoch
+        # if print_cost and i % 100 == 0:
+        #     print("Cost after epoch %i: %f" %(i, cost_avg))
+        # Append cost every 100 epochs
+        if print_cost and i % 100 == 0:
+            costs.append(cost_avg)
     
-        # Backward propagation.
-        #(≈ 1 line of code)
-        # grads = ...    
-        # YOUR CODE STARTS HERE
-        grads = L_model_backward(AL, Y, caches)
-        
-        # YOUR CODE ENDS HERE
- 
-        # Update parameters.
-        #(≈ 1 line of code)
-        # parameters = ...
-        # YOUR CODE STARTS HERE
-        parameters= update_parameters(parameters, grads, learning_rate)
-        
-        # YOUR CODE ENDS HERE
-                
-        # Print the cost every 100 iterations
-        if print_cost and i % 100 == 0 or i == num_iterations - 1:
-            print("Cost after iteration {}: {}".format(i, np.squeeze(cost)))
-        if i % 100 == 0 or i == num_iterations:
-            costs.append(cost)
-    
-    return parameters, costs
+    #TODO: avoid ploting cost on single iterations run
+    #TODO: print the cost on single line too 
+    # plot the cost
+    plt.plot(costs)
+    plt.ylabel('cost')
+    plt.xlabel('epochs (per 100)')
+    plt.title("Learning rate = " + str(learning_rate))
+    plt.show()
+
+    return parameters
 

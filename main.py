@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 from utils.neural_network import L_layer_model
 from utils.prepare_dataset import prepare_dataset
@@ -32,30 +31,23 @@ def main():
     path_to_cat_train_set = "/Users/jan.escorza.fuertes.prv/Repos/puppy-detector/data/training_set/cats"
 
     print("Preparing dataset...")
-    train_x, train_y = prepare_dataset(path_to_dog_train_set, path_to_cat_train_set)
+    # train_x, train_y = prepare_dataset(path_to_dog_train_set, path_to_cat_train_set)
+    train_x, train_y, = prepare_dataset(path_to_dog_train_set, path_to_cat_train_set)
     print("Dataset prepared")
 
     print("Prepare hyperparameters...")
     layers_dims, learning_rate = get_model_hyperparameters(train_x.shape)
     print("Hyperparameters prepared")
 
-    print("Model first run with 1 iteration....")
-    parameters, costs = L_layer_model(train_x, train_y, layers_dims, num_iterations = 1, print_cost = False)
+    print("Model first run with 1 epoch....")
+    #TODO: Maybe avoid running the model with 1 singe epoch or if so print model 
+    parameters = L_layer_model(train_x, train_y, layers_dims, num_epochs = 1, print_cost = False)
+    #TODO: add decreasing gradient!
 
-    print("Cost after first iteration: " + str(costs[0]))
-
-    print("Model second run with 2500 iterations....")
+    print("Model second run with 3000 epochs....")
     # Train the model
-    parameters, costs = L_layer_model(train_x, train_y, layers_dims, num_iterations = 1500, print_cost = True)
+    parameters = L_layer_model(train_x, train_y, layers_dims, num_epochs = 3000, print_cost = True)
 
-    def plot_costs(costs, learning_rate=0.0075):
-        plt.plot(np.squeeze(costs))
-        plt.ylabel('cost')
-        plt.xlabel('iterations (per hundreds)')
-        plt.title("Learning rate =" + str(learning_rate))
-        plt.show()
-
-    plot_costs(costs, learning_rate)
 
     # Load and preprocess the image from the user
 
