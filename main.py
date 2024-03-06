@@ -16,9 +16,9 @@ def get_model_hyperparameters(X_shape):
         n_x = X_shape[0]
     else:
         raise ValueError('The train set is empty. Please check your path to the train set and the files in the folder.')
-    n_h_1 = 8
-    n_h_2 = 16
-    n_h_3 = 12
+    n_h_1 = 16
+    n_h_2 = 12
+    n_h_3 = 8
     n_y = 1  # Set a single output node for the classifier
 
     layers_dims = (n_x, n_h_1, n_h_2, n_h_3, n_y)
@@ -28,8 +28,8 @@ def get_model_hyperparameters(X_shape):
 
 def main():
 
-    path_to_dog_train_set = "/Users/jan.escorza.fuertes.prv/Repos/puppy-detector/data/dev_set/dogs"
-    path_to_cat_train_set = "/Users/jan.escorza.fuertes.prv/Repos/puppy-detector/data/dev_set/cats"
+    path_to_dog_train_set = "/Users/jan.escorza.fuertes.prv/Repos/puppy-detector/data/training_set/dogs"
+    path_to_cat_train_set = "/Users/jan.escorza.fuertes.prv/Repos/puppy-detector/data/training_set/cats"
 
     print("Preparing dataset...")
     train_x, train_y = prepare_dataset(path_to_dog_train_set, path_to_cat_train_set)

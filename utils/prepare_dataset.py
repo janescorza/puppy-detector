@@ -1,3 +1,4 @@
+import math
 import os
 import numpy as np
 
@@ -24,6 +25,42 @@ def shuffle_dataset(X, Y):
     return X_shuffled, Y_shuffled
 
 
+def random_mini_batches(X, Y, mini_batch_size = 64):
+    """
+    Creates a list of random minibatches from (X, Y)
+    
+    Arguments:
+    X -- input data, of shape (input size, number of examples)
+    Y -- true "label" vector (1 for blue dot / 0 for red dot), of shape (1, number of examples)
+    mini_batch_size -- size of the mini-batches, integer
+    
+    Returns:
+    mini_batches -- list of synchronous (mini_batch_X, mini_batch_Y)
+    """
+    
+    m = X.shape[1]                  # number of training examples
+    mini_batches = []
+
+    inc = mini_batch_size
+
+    # Step 1 - Partition (shuffled_X, shuffled_Y).
+    # Cases with a complete mini batch size only i.e each of 64 examples.
+    num_complete_minibatches = math.floor(m / mini_batch_size) # number of mini batches of size mini_batch_size in your partitionning
+    for k in range(0, num_complete_minibatches):
+        mini_batch_X = X[:,k*inc:(k+1)*inc]
+        mini_batch_Y = Y[:,k*inc:(k+1)*inc]
+        mini_batch = (mini_batch_X, mini_batch_Y)
+        mini_batches.append(mini_batch)
+    
+    # For handling the end case (last mini-batch < mini_batch_size i.e less than 64)
+    if m % mini_batch_size != 0:
+
+        mini_batch_X = X[:,(k+1)*inc:((k+1)*inc)+(m % mini_batch_size)]
+        mini_batch_Y = Y[:,(k+1)*inc:((k+1)*inc)+(m % mini_batch_size)]
+        mini_batch = (mini_batch_X, mini_batch_Y)
+        mini_batches.append(mini_batch)
+    
+    return mini_batches
 
 def prepare_dataset(dog_folder_path, cat_folder_path):
     """
@@ -60,8 +97,12 @@ def prepare_dataset(dog_folder_path, cat_folder_path):
     print("Combined X shape:", X.shape)
     Y = np.concatenate((dog_labels, cat_labels), axis=1)
     print("Combined Y shape:", Y.shape)
-
     
     X_shuffled, Y_shuffled = shuffle_dataset(X,Y)
+
+    mini_batches = random_mini_batches(X_shuffled, Y_shuffled)
+    print("Mini batches: ", len(mini_batches))
+    print("Each mini batch shape: ", mini_batches[0][0].shape)
+
     print("Images: ", X_shuffled.shape, "Labels: ", Y_shuffled.shape)
     return X_shuffled, Y_shuffled
