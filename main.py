@@ -28,8 +28,8 @@ def get_model_hyperparameters(X_shape):
 
 def main():
 
-    path_to_dog_train_set = "/Users/jan.escorza.fuertes.prv/Repos/puppy-detector/data/training_set/dogs"
-    path_to_cat_train_set = "/Users/jan.escorza.fuertes.prv/Repos/puppy-detector/data/training_set/cats"
+    path_to_dog_train_set = "/Users/jan.escorza.fuertes.prv/Repos/puppy-detector/data/dev_set/dogs"
+    path_to_cat_train_set = "/Users/jan.escorza.fuertes.prv/Repos/puppy-detector/data/dev_set/cats"
 
     print("Preparing dataset...")
     train_x, train_y = prepare_dataset(path_to_dog_train_set, path_to_cat_train_set)

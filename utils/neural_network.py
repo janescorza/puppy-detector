@@ -15,13 +15,13 @@ def initialize_parameters_deep(layer_dims):
                     bl -- bias vector of shape (layer_dims[l], 1)
     """
     
-    np.random.seed(3)
+    # np.random.seed(3)
     parameters = {}
     L = len(layer_dims) # number of layers in the network
 
     for l in range(1, L):
 
-        parameters["W" + str(l)] = np.random.randn(layer_dims[l], layer_dims[l-1]) * 0.01
+        parameters["W" + str(l)] = np.random.randn(layer_dims[l], layer_dims[l-1]) * 10
         parameters["b" + str(l)] = np.zeros((layer_dims[l], 1))
                 
         print(f"Shape of W{l}: {parameters['W' + str(l)].shape}")
@@ -30,6 +30,28 @@ def initialize_parameters_deep(layer_dims):
         assert(parameters['W' + str(l)].shape == (layer_dims[l], layer_dims[l - 1]))
         assert(parameters['b' + str(l)].shape == (layer_dims[l], 1))
 
+    return parameters
+
+def initialize_parameters_he(layers_dims):
+    """
+    Arguments:
+    layer_dims -- python array (list) containing the size of each layer.
+    
+    Returns:
+    parameters -- python dictionary containing your parameters "W1", "b1", ..., "WL", "bL":
+                    W1 -- weight matrix of shape (layers_dims[1], layers_dims[0])
+                    b1 -- bias vector of shape (layers_dims[1], 1)
+                    ...
+                    WL -- weight matrix of shape (layers_dims[L], layers_dims[L-1])
+                    bL -- bias vector of shape (layers_dims[L], 1)
+    """
+    
+    parameters = {}
+    L = len(layers_dims) - 1 # integer representing the number of layers
+     
+    for l in range(1, L + 1):
+        parameters['W'+str(l)]= np.random.randn(layers_dims[l], layers_dims[l-1]) * np.sqrt(2./layers_dims[l-1])
+        parameters['b'+str(l)]= np.zeros((layers_dims[l],1))
     return parameters
 
 def linear_forward(A, W, b):
@@ -393,12 +415,9 @@ def L_layer_model(X, Y, layers_dims, learning_rate = 0.0075, num_iterations = 30
     costs = []                         # keep track of cost
     
     # Parameters initialization.
-    #(≈ 1 line of code)
-    # parameters = ...
-    # YOUR CODE STARTS HERE
-    parameters = initialize_parameters_deep(layers_dims)
-    
-    # YOUR CODE ENDS HERE
+    # parameters = initialize_parameters_deep(layers_dims)
+    parameters = initialize_parameters_he(layers_dims)
+   
     
     # Loop (gradient descent)
     for i in range(0, num_iterations):
