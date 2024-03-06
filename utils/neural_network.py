@@ -2,35 +2,7 @@
 import copy
 import numpy as np
 import math
-import matplotlib.pyplot as plt
 
-
-def initialize_parameters_deep(layer_dims):
-    """
-    Arguments:
-    layer_dims -- python array (list) containing the dimensions of each layer in our network
-    
-    Returns:
-    parameters -- python dictionary containing your parameters "W1", "b1", ..., "WL", "bL":
-                    Wl -- weight matrix of shape (layer_dims[l], layer_dims[l-1])
-                    bl -- bias vector of shape (layer_dims[l], 1)
-    """
-    
-    parameters = {}
-    L = len(layer_dims) # number of layers in the network
-
-    for l in range(1, L):
-
-        parameters["W" + str(l)] = np.random.randn(layer_dims[l], layer_dims[l-1]) * 10
-        parameters["b" + str(l)] = np.zeros((layer_dims[l], 1))
-                
-        print(f"Shape of W{l}: {parameters['W' + str(l)].shape}")
-        print(f"Shape of b{l}: {parameters['b' + str(l)].shape}")
-
-        assert(parameters['W' + str(l)].shape == (layer_dims[l], layer_dims[l - 1]))
-        assert(parameters['b' + str(l)].shape == (layer_dims[l], 1))
-
-    return parameters
 
 def initialize_parameters_he(layers_dims):
     """
@@ -111,7 +83,7 @@ def random_mini_batches(X, Y, mini_batch_size = 64):
 
     inc = mini_batch_size
 
-    # Step 1 - Partition (shuffled_X, shuffled_Y).
+    # Step 2: Partition (shuffled_X, shuffled_Y).
     # Cases with a complete mini batch size only i.e each of 64 examples.
     num_complete_minibatches = math.floor(m / mini_batch_size) # number of mini batches of size mini_batch_size in your partitionning
     for k in range(0, num_complete_minibatches):
@@ -196,12 +168,7 @@ def linear_forward(A, W, b):
     cache -- a python tuple containing "A", "W" and "b" ; stored for computing the backward pass efficiently
     """
     
-    #(≈ 1 line of code)
-    # Z = ...
-    # YOUR CODE STARTS HERE
     Z = np.dot(W,A)+b
-    
-    # YOUR CODE ENDS HERE
     cache = (A, W, b)
     
     return Z, cache
@@ -254,13 +221,8 @@ def linear_activation_forward(A_prev, W, b, activation):
     """
     
     if activation == "sigmoid":
-        #(≈ 2 lines of code)
-        # Z, linear_cache = ...
-        # A, activation_cache = ...
-        # YOUR CODE STARTS HERE
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = sigmoid(Z)
-        # YOUR CODE ENDS HERE
     
     elif activation == "relu":
         Z, linear_cache = linear_forward(A_prev, W, b)
@@ -286,27 +248,17 @@ def L_model_forward(X, parameters, layers_dims):
     caches = []
     A = X # activations in the first layer (input data)
     L = len(parameters) // 2 # number of layers in the neural network
-    # print("Activations in the first layer (input data):", A.shape)
-    # print("Number of layers in the neural network:", L)
+
     
-    # Implement [LINEAR -> RELU]*(L-1). Add "cache" to the "caches" list.
-    # The for loop starts at 1 because layer 0 is the input
+    # [LINEAR -> RELU]*(L-1) and adding "cache" to the "caches" list.
+    # The for loop starts at 1 because layer 0 is the input layer
     for l in range(1, L):
         A_prev = A 
-        # print("Forward propagation for layer ", l)
-        # print("Validate sizing for W: ", parameters['W' + str(l)].shape ,"should be", (layers_dims[l], layers_dims[l-1]))
-        # print("Validate sizing for b: ", parameters['b' + str(l)].shape ,"should be", (layers_dims[l], 1))
         A, cache = linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], activation = "relu")
-        # print("Activations for layer ", l, ": ", A.shape)
         caches.append(cache)
     # Implement LINEAR -> SIGMOID. Add "cache" to the "caches" list.
-    #(≈ 2 lines of code)
-    # AL, cache = ...
-    # caches ...
-    # YOUR CODE STARTS HERE
     AL, cache = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], activation = "sigmoid")
     caches.append(cache)
-    # YOUR CODE ENDS HERE
           
     return AL, caches
 
@@ -325,14 +277,11 @@ def compute_cost(AL, Y):
     m = Y.shape[1]
 
     # Compute loss from aL and y.
-    # (≈ 1 lines of code)
-    # cost = ...
-    # YOUR CODE STARTS HERE
     cost = -1/m * np.sum(np.dot(Y, np.log(AL).T) + np.dot(1 - Y, np.log(1 - AL).T))
     
-    # YOUR CODE ENDS HERE
     
-    cost = np.squeeze(cost)      # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
+    cost = np.squeeze(cost)     
+     # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
 
     
     return cost
@@ -353,15 +302,10 @@ def linear_backward(dZ, cache):
     A_prev, W, b = cache
     m = A_prev.shape[1]
 
-    ### START CODE HERE ### (≈ 3 lines of code)
-    # dW = ...
-    # db = ... sum by the rows of dZ with keepdims=True
-    # dA_prev = ...
-    # YOUR CODE STARTS HERE
+    # db is summed by the rows of dZ with keepdims=True
     dW = 1/m * np.dot(dZ,A_prev.T)
     db = 1/m * np.sum(dZ,axis=1, keepdims=True)
     dA_prev = np.dot(W.T,dZ)
-    # YOUR CODE ENDS HERE
     
     return dA_prev, dW, db
 
@@ -413,24 +357,12 @@ def linear_activation_backward(dA, cache, activation):
     linear_cache, activation_cache = cache
     
     if activation == "relu":
-        #(≈ 2 lines of code)
-        # dZ =  ...
-        # dA_prev, dW, db =  ...
-        # YOUR CODE STARTS HERE
         dZ = relu_backward(dA ,activation_cache)
         dA_prev, dW, db = linear_backward(dZ, linear_cache)
         
-        # YOUR CODE ENDS HERE
-        
     elif activation == "sigmoid":
-        #(≈ 2 lines of code)
-        # dZ =  ...
-        # dA_prev, dW, db =  ...
-        # YOUR CODE STARTS HERE
         dZ =sigmoid_backward(dA, activation_cache)
         dA_prev, dW, db = linear_backward(dZ, linear_cache)
-
-        # YOUR CODE ENDS HERE
     
     return dA_prev, dW, db
 
@@ -454,82 +386,29 @@ def L_model_backward(AL, Y, caches):
     grads = {}
     L = len(caches) # the number of layers
     m = AL.shape[1]
-    # print("AL shape in L_model_backward", AL.shape)
-    # print("Y shape in L_model_backward", Y.shape)
     Y = Y.reshape(AL.shape) # after this line, Y is the same shape as AL
     # Initializing the backpropagation
-    #(1 line of code)
-    # dAL = ...
-    # YOUR CODE STARTS HERE
     dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL)) # derivative of cost with respect to AL
-    
-    # YOUR CODE ENDS HERE
-    
+        
     # Lth layer (SIGMOID -> LINEAR) gradients. Inputs: "dAL, current_cache". Outputs: "grads["dAL-1"], grads["dWL"], grads["dbL"]
-    #(approx. 5 lines)
-    # current_cache = ...
-    # dA_prev_temp, dW_temp, db_temp = ...
-    # grads["dA" + str(L-1)] = ...
-    # grads["dW" + str(L)] = ...
-    # grads["db" + str(L)] = ...
-    # YOUR CODE STARTS HERE
     current_cache = caches[L-1]
     dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, "sigmoid")
     grads["dA" + str(L-1)] = dA_prev_temp
     grads["dW" + str(L)] = dW_temp
     grads["db" + str(L)] = db_temp
-    
-    # YOUR CODE ENDS HERE
-    
+        
     # Loop from l=L-2 to l=0
     for l in reversed(range(L-1)):
 
         # lth layer: (RELU -> LINEAR) gradients.
         # Inputs: "grads["dA" + str(l + 1)], current_cache". Outputs: "grads["dA" + str(l)] , grads["dW" + str(l + 1)] , grads["db" + str(l + 1)] 
-        #(approx. 5 lines)
-        # current_cache = ...
-        # dA_prev_temp, dW_temp, db_temp = ...
-        # grads["dA" + str(l)] = ...
-        # grads["dW" + str(l + 1)] = ...
-        # grads["db" + str(l + 1)] = ...
-        # YOUR CODE STARTS HERE
         current_cache = caches[l]
         dA_prev_temp, dW_temp, db_temp = linear_activation_backward(grads["dA" + str(l+1)], current_cache, "relu")
         grads["dA" + str(l)] = dA_prev_temp
         grads["dW" + str(l+1)] = dW_temp
         grads["db" + str(l+1)] = db_temp
         
-        # YOUR CODE ENDS HERE
-
     return grads
-
-def update_parameters(params, grads, learning_rate):
-    """
-    Update parameters using gradient descent
-    
-    Arguments:
-    params -- python dictionary containing your parameters 
-    grads -- python dictionary containing your gradients, output of L_model_backward
-    
-    Returns:
-    parameters -- python dictionary containing your updated parameters 
-                  parameters["W" + str(l)] = ... 
-                  parameters["b" + str(l)] = ...
-    """
-    parameters = copy.deepcopy(params)
-    L = len(parameters) // 2 # number of layers in the neural network
-    # Update rule for each parameter. Use a for loop.
-    #(≈ 2 lines of code)
-    for l in range(L):
-        # parameters["W" + str(l+1)] = ...
-        # parameters["b" + str(l+1)] = ...
-        # YOUR CODE STARTS HERE
-        parameters["W" + str(l+1)] = params["W" + str(l+1)] - learning_rate * grads["dW" + str(l+1)]
-        parameters["b" + str(l+1)] = params["b" + str(l+1)] - learning_rate * grads["db" + str(l+1)]
-        # YOUR CODE ENDS HERE
-    return parameters
-
-
 
 def L_layer_model(X, Y, layers_dims, learning_rate = 0.0007, mini_batch_size = 64,
           beta1 = 0.9, beta2 = 0.999,  epsilon = 1e-8, num_epochs = 5000, print_cost = True):
@@ -560,7 +439,6 @@ def L_layer_model(X, Y, layers_dims, learning_rate = 0.0007, mini_batch_size = 6
     m = X.shape[1]           # number of examples accross all minibatches
     
     # Parameters initialization.
-    # parameters = initialize_parameters_deep(layers_dims)
     parameters = initialize_parameters_he(layers_dims)
 
     v,s = initialize_adam(parameters)
@@ -570,7 +448,7 @@ def L_layer_model(X, Y, layers_dims, learning_rate = 0.0007, mini_batch_size = 6
         # Define the random minibatches.
         print("Prepare minibatches...")
         minibatches = random_mini_batches(X, Y, mini_batch_size)
-        print("Total number of minibatches:", len(minibatches))
+        print("Minibatches prepared")
         cost_total = 0
 
         for minibatch in minibatches:
@@ -578,45 +456,27 @@ def L_layer_model(X, Y, layers_dims, learning_rate = 0.0007, mini_batch_size = 6
             (minibatch_X, minibatch_Y) = minibatch
 
             # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
-            # AL, caches = L_model_forward(X, parameters)
-            # print("mini batch X shape:", minibatch_X.shape)
             AL, caches = L_model_forward(minibatch_X, parameters, layers_dims)
-            # print("AL shape:", AL.shape)
 
             # Compute cost and add to the cost total
             cost_total += compute_cost(AL, minibatch_Y)
                     
             # Backward propagation
-            # print("minibatch X shape:", minibatch_X.shape)
-            # print("minibatch Y shape:", minibatch_Y.shape)
-            # print("Activation Layer shape before L_model_backward:", AL.shape)
             grads = L_model_backward(AL, minibatch_Y, caches)
-            # grads = L_model_backward(minibatch_X, minibatch_Y, caches)
     
             # Update parameters.
-            # parameters= update_parameters(parameters, grads, learning_rate)
             t = t + 1 # Adam counter
             parameters, v, s, _, _ = update_parameters_with_adam(parameters, grads, v, s, t, learning_rate, beta1, beta2,  epsilon)
         
         cost_avg = cost_total / m
-        # Print the cost every 1 epoch
-        if print_cost and i % 1 == 0:
+        # Print the cost every 10 epochs
+        if print_cost and i % 10 == 0:
             print("🚀 Cost after epoch %i: %f" %(i, cost_avg))
-        # Print the cost every 100 epoch
-        # if print_cost and i % 100 == 0:
-        #     print("Cost after epoch %i: %f" %(i, cost_avg))
-        # Append cost every 100 epochs
-        if print_cost and i % 100 == 0:
+        # Append cost every 10 epochs
+        if print_cost and i % 10 == 0:
             costs.append(cost_avg)
     
-    #TODO: avoid ploting cost on single iterations run
-    #TODO: print the cost on single line too 
-    # plot the cost
-    plt.plot(costs)
-    plt.ylabel('cost')
-    plt.xlabel('epochs (per 100)')
-    plt.title("Learning rate = " + str(learning_rate))
-    plt.show()
+    
 
-    return parameters
+    return parameters, costs
 

@@ -1,7 +1,7 @@
-import numpy as np
-
 from utils.neural_network import L_layer_model
 from utils.prepare_dataset import prepare_dataset
+import matplotlib.pyplot as plt
+
 
 def get_model_hyperparameters(X_shape):
     """
@@ -39,15 +39,16 @@ def main():
     layers_dims, learning_rate = get_model_hyperparameters(train_x.shape)
     print("Hyperparameters prepared")
 
-    print("Model first run with 1 epoch....")
-    #TODO: Maybe avoid running the model with 1 singe epoch or if so print model 
-    parameters = L_layer_model(train_x, train_y, layers_dims, num_epochs = 1, print_cost = False)
-    #TODO: add decreasing gradient!
-
-    print("Model second run with 3000 epochs....")
+    print("Train the model with several epochs....")
     # Train the model
-    parameters = L_layer_model(train_x, train_y, layers_dims, num_epochs = 3000, print_cost = True)
+    parameters, costs = L_layer_model(train_x, train_y, layers_dims, num_epochs = 100, print_cost = True)
 
+    # plot the cost
+    plt.plot(costs)
+    plt.ylabel('cost')
+    plt.xlabel('epochs (per 100)')
+    plt.title("Learning rate = " + str(learning_rate))
+    plt.show()
 
     # Load and preprocess the image from the user
 
