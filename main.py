@@ -16,9 +16,9 @@ def get_model_hyperparameters(X_shape):
         n_x = X_shape[0]
     else:
         raise ValueError('The train set is empty. Please check your path to the train set and the files in the folder.')
-    n_h_1 = 10
-    n_h_2 = 30
-    n_h_3 = 20
+    n_h_1 = 8
+    n_h_2 = 16
+    n_h_3 = 12
     n_y = 1  # Set a single output node for the classifier
 
     layers_dims = (n_x, n_h_1, n_h_2, n_h_3, n_y)
@@ -46,7 +46,7 @@ def main():
 
     print("Model second run with 2500 iterations....")
     # Train the model
-    parameters, costs = L_layer_model(train_x, train_y, layers_dims, num_iterations = 2500, print_cost = True)
+    parameters, costs = L_layer_model(train_x, train_y, layers_dims, num_iterations = 1500, print_cost = True)
 
     def plot_costs(costs, learning_rate=0.0075):
         plt.plot(np.squeeze(costs))

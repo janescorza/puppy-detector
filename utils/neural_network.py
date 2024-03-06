@@ -402,7 +402,7 @@ def L_layer_model(X, Y, layers_dims, learning_rate = 0.0075, num_iterations = 30
     
     # Loop (gradient descent)
     for i in range(0, num_iterations):
-
+        print("Iteration: ", i)
         # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
         #(≈ 1 line of code)
         # AL, caches = ...
