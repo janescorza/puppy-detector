@@ -43,7 +43,13 @@ def normalize_image(image_vector):
     normalized_vector = image_vector / 255
     return normalized_vector
 
-def process_images_in_folder(folder_path):
+def preprocess_image(image_path):
+    image_array = load_image(image_path)
+    image_vector = image2vector(image_array)
+    normalized_vector = normalize_image(image_vector)
+    return normalized_vector
+
+def preprocess_images_in_folder(folder_path):
     """
     Process all JPG images in a folder.
     
@@ -57,9 +63,7 @@ def process_images_in_folder(folder_path):
     for filename in os.listdir(folder_path):
         if filename.endswith(".jpg"):
             image_path = os.path.join(folder_path, filename)
-            image_array = load_image(image_path)
-            image_vector = image2vector(image_array)
-            normalized_vector = normalize_image(image_vector)
+            normalized_vector = preprocess_image(image_path)
             normalized_vectors.append(normalized_vector)
     # Stack vectors horizontaly to get an array with shape (length*height*depth, number of images) 
     normalized_images = np.hstack(normalized_vectors)

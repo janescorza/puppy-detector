@@ -1,5 +1,4 @@
 
-import copy
 import numpy as np
 import math
 
@@ -231,7 +230,7 @@ def linear_activation_forward(A_prev, W, b, activation):
 
     return A, cache
 
-def L_model_forward(X, parameters, layers_dims):
+def L_model_forward(X, parameters):
     """
     Implement forward propagation for the [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID computation
     
@@ -447,6 +446,7 @@ def L_layer_model(X, Y, layers_dims, learning_rate = 0.0007, mini_batch_size = 6
 
         # Define the random minibatches.
         print("Prepare minibatches...")
+        print("Prepare minibatches for epoch number %i..." %(i))
         minibatches = random_mini_batches(X, Y, mini_batch_size)
         print("Minibatches prepared")
         cost_total = 0
@@ -456,7 +456,7 @@ def L_layer_model(X, Y, layers_dims, learning_rate = 0.0007, mini_batch_size = 6
             (minibatch_X, minibatch_Y) = minibatch
 
             # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
-            AL, caches = L_model_forward(minibatch_X, parameters, layers_dims)
+            AL, caches = L_model_forward(minibatch_X, parameters)
 
             # Compute cost and add to the cost total
             cost_total += compute_cost(AL, minibatch_Y)
@@ -470,7 +470,7 @@ def L_layer_model(X, Y, layers_dims, learning_rate = 0.0007, mini_batch_size = 6
         
         cost_avg = cost_total / m
         # Print the cost every 10 epochs
-        if print_cost and i % 10 == 0:
+        if print_cost and i % 1 == 0:
             print("🚀 Cost after epoch %i: %f" %(i, cost_avg))
         # Append cost every 10 epochs
         if print_cost and i % 10 == 0:
