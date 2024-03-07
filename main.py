@@ -60,7 +60,7 @@ def main():
 
     print("Train the model with several epochs....")
     # Train the model
-    parameters, costs = L_layer_model(train_x, train_y, layers_dims, num_epochs = 40, print_cost = True)
+    parameters, costs = L_layer_model(train_x, train_y, layers_dims, num_epochs = 100, print_cost = True)
 
     # plot the training cost
     plt.plot(costs)

@@ -60,15 +60,15 @@ def prepare_dataset(dog_folder_path, cat_folder_path):
     Y = np.concatenate((dog_labels, cat_labels), axis=1)
     print("Combined Y shape:", Y.shape)
     
-
-    print("Images: ", X.shape, "Labels: ", Y.shape)
-    return X, Y
-    # print("Shuffle dataset...")
-    # X_shuffled, Y_shuffled = shuffle_dataset(X,Y)
-    # print("Dataset shuffled")
+    print("Shuffle dataset...")
+    X_shuffled, Y_shuffled = shuffle_dataset(X,Y)
+    print("Dataset shuffled")
 
     print("Images: ", X_shuffled.shape, "Labels: ", Y_shuffled.shape)
     return X_shuffled, Y_shuffled
+
+    print("Images: ", X.shape, "Labels: ", Y.shape)
+    return X, Y
 
     # Previous implementation return with minibatches in the prep
     # number_of_examples = X_shuffled.shape[1]
