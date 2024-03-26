@@ -34,3 +34,6 @@ Ready to unleash the power of Deep Learning for adorable purposes? Check out the
    ```bash
    python3 main.py
    ```
+
+**Note on Overfitting:**
+The model currently exhibits overfitting to the training data. Potential improvements include enlarging the training dataset, augmenting data, and expanding the network with deeper or larger layers. These enhancements are pending due to current limitations with my computational resources. However, I am actively seeking solutions to augment these resouces and keep improving this repository.
