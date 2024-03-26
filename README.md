@@ -1,12 +1,12 @@
 ## Unleash Your Inner Dog Detective 🐶🕵️‍♂️ with This Deep Learning Puppy Detector!✨🐾
 
-This repository houses the code for a **puppy detector** I have built entirely from scratch using **Python and my Deep Learning skills**. This sipmle project aims to **distinguish between images of genuine puppies and imposters** (other animals or objects) using a neural network model.
+This repository houses the code for a **puppy detector** I have built entirely from scratch using **Python and my Deep Learning skills**. This simple project aims to **distinguish between images of genuine puppies and imposters** (other animals or objects) using a neural network model.
 
 🤔 **Why Build from Scratch?** 🤔
 
 This project goes beyond using pre-built libraries like TensorFlow. Instead, it focuses on understanding the core principles of neural networks. Building it from scratch allowed me to:
 
-* 💡**Demonstrate Chore My Understanding**💡: This project demonstrates my understanding of neural network implementation, showcasing my learning journey.
+* 💡**Demonstrate My Chore Understanding**💡: This project demonstrates my understanding of neural network implementation, showcasing my learning journey.
 * ⚙️**Grasp the Intricate Workings of Neural Networks**⚙️: Understanding the "how" and "why" behind neural networks empowers me to optimize them effectively.
 * 🔨**Experiment and Refine**🔨: Understanding the core mechanics enables me to explore diverse optimization techniques and fine-tune the model for superior performance.
 
