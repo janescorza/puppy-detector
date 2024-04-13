@@ -17,13 +17,13 @@ def prepare_model_hyperparameters(X_shape):
         n_x = X_shape[0]
     else:
         raise ValueError('The train set is empty. Please check your path to the train set and the files in the folder.')
-    n_h_1 = 16
-    n_h_2 = 12
-    n_h_3 = 8
+    n_h_1 = 12
+    n_h_2 = 8
+    n_h_3 = 4
     n_y = 1  # Set a single output node for the classifier
 
     layers_dims = (n_x, n_h_1, n_h_2, n_h_3, n_y)
-    learning_rate = 0.0075
+    learning_rate = 0.001
 
     return layers_dims, learning_rate
 
@@ -60,7 +60,7 @@ def main():
 
     print("Train the model with several epochs....")
     # Train the model
-    parameters, costs = L_layer_model(train_x, train_y, layers_dims, num_epochs = 100, print_cost = True)
+    parameters, costs = L_layer_model(train_x, train_y, layers_dims, num_epochs = 2, print_cost = True)
 
     # plot the training cost
     plt.plot(costs)
