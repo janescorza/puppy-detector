@@ -1,9 +1,9 @@
+import os
 import numpy as np
 from utils.image_preprocessing import preprocess_image
 from utils.neural_network import L_layer_model, L_model_forward
 from utils.prepare_dataset import prepare_dataset
 import matplotlib.pyplot as plt
-
 
 def prepare_model_hyperparameters(X_shape):
     """
@@ -17,13 +17,13 @@ def prepare_model_hyperparameters(X_shape):
         n_x = X_shape[0]
     else:
         raise ValueError('The train set is empty. Please check your path to the train set and the files in the folder.')
-    n_h_1 = 12
-    n_h_2 = 8
-    n_h_3 = 4
+    n_h_1 = 24
+    n_h_2 = 12
+    n_h_3 = 8
     n_y = 1  # Set a single output node for the classifier
 
     layers_dims = (n_x, n_h_1, n_h_2, n_h_3, n_y)
-    learning_rate = 0.001
+    learning_rate = 0.0007
 
     return layers_dims, learning_rate
 
@@ -44,14 +44,19 @@ def predict_image(image_path, parameters):
 
 def main():
 
-    path_to_dog_train_set = "/Users/jan.escorza.fuertes.prv/Repos/puppy-detector/data/training_set/dogs"
-    path_to_cat_train_set = "/Users/jan.escorza.fuertes.prv/Repos/puppy-detector/data/training_set/cats"
+    path_to_dog_train_set = "data/training_set/dogs"
+    path_to_cat_train_set = "data/training_set/cats"
+    path_to_train_output_folder = "data/training_set/"
 
-    path_to_dog_dev_set = "/Users/jan.escorza.fuertes.prv/Repos/puppy-detector/data/dev_set/dogs"
-    path_to_cat_dev_set = "/Users/jan.escorza.fuertes.prv/Repos/puppy-detector/data/dev_set/cats"
+    path_to_dog_dev_set = "data/dev_set/dogs"
+    path_to_cat_dev_set = "data/dev_set/cats"
+    path_to_dev_output_folder = "data/dev_set/"
+
+    base_path = os.path.dirname(__file__)
+
 
     print("Preparing training dataset...")
-    train_x, train_y, = prepare_dataset(path_to_dog_train_set, path_to_cat_train_set)
+    train_x, train_y, = prepare_dataset(base_path, path_to_dog_train_set, path_to_cat_train_set, path_to_train_output_folder)
     print("Training dataset prepared")
 
     print("Prepare hyperparameters...")
@@ -60,17 +65,17 @@ def main():
 
     print("Train the model with several epochs....")
     # Train the model
-    parameters, costs = L_layer_model(train_x, train_y, layers_dims, num_epochs = 2, print_cost = True)
+    parameters, costs = L_layer_model(train_x, train_y, layers_dims, num_epochs = 10, print_cost = True)
 
     # plot the training cost
     plt.plot(costs)
     plt.ylabel('cost')
-    plt.xlabel('epochs (per 100)')
+    plt.xlabel('epochs (per 1)')
     plt.title("Learning rate = " + str(learning_rate))
     plt.show()
 
     print("Preparing dev dataset...")
-    dev_x, dev_y, = prepare_dataset(path_to_dog_dev_set, path_to_cat_dev_set)
+    dev_x, dev_y, = prepare_dataset(path_to_dog_dev_set, path_to_cat_dev_set, path_to_dev_output_folder)
     print("Training dataset prepared")
 
     # Evaluate the model on dev

@@ -1,80 +1,93 @@
 import os
 import numpy as np
+from sklearn.utils import shuffle
 
 from utils.image_preprocessing import preprocess_images_in_folder
 
+def save_data(data, filename):
+    np.save(filename, data)
+
+def load_data(filename):
+    return np.load(filename + '.npy')
+
 def shuffle_dataset(X, Y):
     """
-    Shuffle the dataset incrementally.
-    
+    Shuffle the dataset using sklearn's shuffle to ensure X and Y remain in sync.
+
     Arguments:
-    X -- a numpy array of shape (number of images, length*height*depth) containing the normalized image vectors
-    Y -- a numpy array of shape (number of images, 1) containing the labels (1 for dog, 0 for cat)
-    
+    X -- a numpy array of shape (length*height*depth, number of images) containing the normalized image vectors
+    Y -- a numpy array of shape (1, number of images) containing the labels (1 for dog, 0 for cat)
+
     Returns:
     X_shuffled -- shuffled X array
     Y_shuffled -- shuffled Y array
     """
-    m = X.shape[1] # number of training examples
-    permutation = list(np.random.permutation(m))
-    X_shuffled = X[:, permutation]
-    Y_shuffled = Y[:, permutation].reshape((1, m))
-    print("X_shuffled", X_shuffled.shape)
-    print("Y_shuffled", Y_shuffled.shape)
+    X, Y = shuffle(X.T, Y.T, random_state=42)  # Shuffle along the first axis
+    X_shuffled = X.T
+    Y_shuffled = Y.T
+
+    print("X shape after shuffle:", X_shuffled.shape)
+    print("Y shape after shuffle:", Y_shuffled.shape)
+
     return X_shuffled, Y_shuffled
 
-
-def prepare_dataset(dog_folder_path, cat_folder_path):
+def prepare_dataset(base_path, dog_folder_relative_path, cat_folder_relative_path, output_folder_relative_path, force_preprocess=False):
     """
     Prepare the dataset by processing all dog and cat images, creating labels,
     and combining them into a single array of normalized vectors and labels.
     
     Arguments:
-    dog_folder_path -- path to the folder containing the dog images
-    cat_folder_path -- path to the folder containing the cat images
+    base_path -- base path of the main script
+    dog_folder_relative_path -- relative path to the folder containing the dog images
+    cat_folder_relative_path -- relative path to the folder containing the cat images
+    output_folder_relative_path -- relative path to the folder that should contain the preprocessed data
+    force_preprocess -- boolean flag to force the preprocessing of the data even if it is already saved
     
     Returns:
-    X -- a numpy array of shape (number of images, length*height*depth) containing the normalized image vectors
-    Y -- a numpy array of shape (number of images, 1) containing the labels (1 for dog, 0 for cat)
+    X -- a numpy array of shape (length*height*depth, number of image) containing the normalized image vectors
+    Y -- a numpy array of shape (1, number of images) containing the labels (1 for dog, 0 for cat)
     """
-    print("Processing dog images...")
-    dog_images = preprocess_images_in_folder(dog_folder_path)
-    print("dog images shape: ", dog_images.shape)
-    num_dogs = dog_images.shape[1]
-    print("dog images number: ", num_dogs)
-    dog_labels = np.ones((1, num_dogs))
-    print("dog labels shape:", dog_labels.shape)
 
-    print("Processing cat images...")
-    cat_images = preprocess_images_in_folder(cat_folder_path)
-    print("cat images shape: ", cat_images.shape)
-    num_cats = cat_images.shape[1]
-    print("cat images number: ", num_cats)
-    cat_labels = np.zeros((1, num_cats))
-    print("cat labels shape:", cat_labels.shape)
+    dog_folder_path = os.path.join(base_path, dog_folder_relative_path)  
+    cat_folder_path = os.path.join(base_path, cat_folder_relative_path)  
+    output_folder = os.path.join(base_path, output_folder_relative_path)  
 
-    # Combine images and labels
-    # The reshape assumes that both dog_images and cat_images have the same shape
-    X = np.concatenate((dog_images, cat_images), axis=1)
-    print("Combined X shape:", X.shape)
-    Y = np.concatenate((dog_labels, cat_labels), axis=1)
-    print("Combined Y shape:", Y.shape)
+    # Evaluate if we have preprocessed data
+    x_path = os.path.join(output_folder, 'X')
+    y_path = os.path.join(output_folder, 'Y')
+
+    # Check if data is already processed and saved
+    if not force_preprocess and os.path.exists(x_path + '.npy') and os.path.exists(y_path + '.npy'):
+        X = load_data(x_path)
+        Y = load_data(y_path)
+    else:
+        # Preprocess images for dogs (label 1) and cats (label 0)
+        print("Processing dog images...")
+        dog_images = preprocess_images_in_folder(dog_folder_path)
+        print("dog images shape: ", dog_images.shape)
+        dog_labels = np.ones(dog_images.shape[1])
+        print("Processing cat images...")
+        cat_images = preprocess_images_in_folder(cat_folder_path)
+        print("cat images shape: ", cat_images.shape)
+        cat_labels = np.zeros(cat_images.shape[1])
+
+        X = np.hstack([dog_images, cat_images])
+        print("Combined X shape:", X.shape)
+
+        # Set labels for dogs and cats images in X
+        Y = np.hstack([dog_labels, cat_labels]).reshape(1, -1)
+        print("Combined Y shape:", Y.shape)
+        print("The contents of Y are:",Y)
+
+        # Save processed data
+        save_data(X, x_path)
+        save_data(Y, y_path)
     
+    # TODO: consider storing it shuffled
     print("Shuffle dataset...")
     X_shuffled, Y_shuffled = shuffle_dataset(X,Y)
+    # X_shuffled, Y_shuffled = shuffle(X, Y, random_state=42)
     print("Dataset shuffled")
 
     print("Images: ", X_shuffled.shape, "Labels: ", Y_shuffled.shape)
     return X_shuffled, Y_shuffled
-
-    print("Images: ", X.shape, "Labels: ", Y.shape)
-    return X, Y
-
-    # Previous implementation return with minibatches in the prep
-    # number_of_examples = X_shuffled.shape[1]
-    # print(f"Number of examples: {number_of_examples}")
-    # print("Prepare minibatches...")
-    # mini_batches = random_mini_batches(X_shuffled, Y_shuffled)
-    # print("Mini batches: ", len(mini_batches))
-    # print("Each mini batch shape: ", mini_batches[0][0].shape)
-    # return mini_batches, number_of_examples
