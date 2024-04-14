@@ -49,6 +49,21 @@ def preprocess_image(image_path):
     normalized_vector = normalize_image(image_vector)
     return normalized_vector
 
+# def preprocess_single_image(image_path, mean, std):
+#     """
+#     Preprocess a single image by loading, vectorizing, and normalizing it.
+
+#     Arguments:
+#     image_path -- path to the image file
+#     mean -- mean of the train dataset
+#     std -- standard deviation of train the dataset
+#     """
+#     normalized_image_vector = preprocess_image(image_path)
+#     # Normalize using the mean and std from training data
+#     standardized_image = (normalized_image_vector - mean) / std
+#     return standardized_image
+
+
 def preprocess_images_in_folder(folder_path):
     """
     Process all JPG images in a folder.
@@ -68,3 +83,12 @@ def preprocess_images_in_folder(folder_path):
     # Stack vectors horizontaly to get an array with shape (length*height*depth, number of images) 
     normalized_images = np.hstack(normalized_vectors)
     return normalized_images
+
+    # # Compute mean and std deviation for future use
+    # mean = np.mean(normalized_images, axis=1, keepdims=True)
+    # std = np.std(normalized_images, axis=1, keepdims=True)
+    # # Normalize using computed mean and std
+    # standardized_images = (normalized_images - mean) / std
+
+
+    # return standardized_images, mean, std

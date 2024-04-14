@@ -17,13 +17,13 @@ def prepare_model_hyperparameters(X_shape):
         n_x = X_shape[0]
     else:
         raise ValueError('The train set is empty. Please check your path to the train set and the files in the folder.')
-    n_h_1 = 24
-    n_h_2 = 12
-    n_h_3 = 8
+    n_h_1 = 1024
+    n_h_2 = 512
+    n_h_3 = 256
     n_y = 1  # Set a single output node for the classifier
 
     layers_dims = (n_x, n_h_1, n_h_2, n_h_3, n_y)
-    learning_rate = 0.0007
+    learning_rate = 0.001
 
     return layers_dims, learning_rate
 
@@ -33,6 +33,7 @@ def evaluate_model(parameters, dev_x, dev_y):
     accuracy = np.mean(predictions == dev_y)
     return accuracy
 
+# def predict_image(image_path, parameters, train_mean, train_std):
 def predict_image(image_path, parameters):
     # Load and preprocess the image
     normalized_image_vector = preprocess_image(image_path)
@@ -56,7 +57,8 @@ def main():
 
 
     print("Preparing training dataset...")
-    train_x, train_y, = prepare_dataset(base_path, path_to_dog_train_set, path_to_cat_train_set, path_to_train_output_folder)
+    train_x, train_y = prepare_dataset(base_path, path_to_dog_train_set, path_to_cat_train_set, path_to_train_output_folder)
+    # train_x, train_y, train_mean, train_std = prepare_dataset(base_path, path_to_dog_train_set, path_to_cat_train_set, path_to_train_output_folder)
     print("Training dataset prepared")
 
     print("Prepare hyperparameters...")
@@ -65,7 +67,7 @@ def main():
 
     print("Train the model with several epochs....")
     # Train the model
-    parameters, costs = L_layer_model(train_x, train_y, layers_dims, num_epochs = 10, print_cost = True)
+    parameters, costs = L_layer_model(train_x, train_y, layers_dims, num_epochs = 5, print_cost = True)
 
     # plot the training cost
     plt.plot(costs)
@@ -75,11 +77,11 @@ def main():
     plt.show()
 
     print("Preparing dev dataset...")
-    dev_x, dev_y, = prepare_dataset(path_to_dog_dev_set, path_to_cat_dev_set, path_to_dev_output_folder)
+    dev_x, dev_y,_,_ = prepare_dataset(base_path, path_to_dog_dev_set, path_to_cat_dev_set, path_to_dev_output_folder)
     print("Training dataset prepared")
 
     # Evaluate the model on dev
-    print("Evalutating on the dev dataset...")
+    print("Evaluating on the dev dataset...")
     accuracy = evaluate_model(parameters, dev_x, dev_y)
     print(f"Model accuracy on the dev set: {accuracy}")
 
@@ -87,6 +89,7 @@ def main():
     # Load and preprocess the image from the user
     user_image_path = input("Enter the path to the image you want to predict: ")
     prediction = predict_image(user_image_path, parameters)
+    # prediction = predict_image(user_image_path, parameters, train_mean, train_std)
     # Output the prediction
     if prediction > 0.5:
         print("The image is of a puppy!")

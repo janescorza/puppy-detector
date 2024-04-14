@@ -64,10 +64,12 @@ def prepare_dataset(base_path, dog_folder_relative_path, cat_folder_relative_pat
         # Preprocess images for dogs (label 1) and cats (label 0)
         print("Processing dog images...")
         dog_images = preprocess_images_in_folder(dog_folder_path)
+        # dog_images, dog_mean, dog_std  = preprocess_images_in_folder(dog_folder_path)
         print("dog images shape: ", dog_images.shape)
         dog_labels = np.ones(dog_images.shape[1])
         print("Processing cat images...")
         cat_images = preprocess_images_in_folder(cat_folder_path)
+        # cat_images,  cat_mean, cat_std = preprocess_images_in_folder(cat_folder_path)
         print("cat images shape: ", cat_images.shape)
         cat_labels = np.zeros(cat_images.shape[1])
 

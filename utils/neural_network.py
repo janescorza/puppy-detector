@@ -20,6 +20,7 @@ def initialize_parameters_he(layers_dims):
     
     parameters = {}
     L = len(layers_dims) - 1 # integer representing the number of layers
+    print("🚀 ~ layers_dims:", layers_dims)
     for l in range(1, L + 1):
         parameters['W'+str(l)]= np.random.randn(layers_dims[l], layers_dims[l-1]) * np.sqrt(2./layers_dims[l-1])
         parameters['b'+str(l)]= np.zeros((layers_dims[l],1))
@@ -180,6 +181,7 @@ def sigmoid(z):
     s -- sigmoid(z)
     cache -- a tuple containing "Z"
     """
+    z = np.clip(z, -10, 10) # To prevent overflows in the exponential calculation within the sigmoid function
     s = 1/(1+np.exp(-z))
     cache = z
     return s, cache
@@ -258,13 +260,14 @@ def L_model_forward(X, parameters):
           
     return AL, caches
 
-def compute_cost(AL, Y):
+def compute_cost(AL, Y, epsilon):
     """
     Implement the cost function defined by equation (7).
 
     Arguments:
     AL -- probability vector corresponding to your label predictions, shape (1, number of examples)
     Y -- true "label" vector (for example: containing 0 if non-cat, 1 if cat), shape (1, number of examples)
+    epsilon -- hyperparameter preventing -infinity or division by zero in cost calculation
 
     Returns:
     cost -- cross-entropy cost
@@ -273,7 +276,9 @@ def compute_cost(AL, Y):
     m = Y.shape[1]
 
     # Compute loss from aL and y.
-    cost = -1/m * np.sum(np.dot(Y, np.log(AL).T) + np.dot(1 - Y, np.log(1 - AL).T))
+    # cost = -1/m * np.sum(np.dot(Y, np.log(AL).T) + np.dot(1 - Y, np.log(1 - AL).T))
+    cost = -1/m * np.sum(np.dot(Y, np.log(AL + epsilon).T) + np.dot(1 - Y, np.log(1 - AL + epsilon).T))
+
     
     
     cost = np.squeeze(cost)     
@@ -362,7 +367,7 @@ def linear_activation_backward(dA, cache, activation):
     
     return dA_prev, dW, db
 
-def L_model_backward(AL, Y, caches):
+def L_model_backward(AL, Y, caches, epsilon):
     """
     Implement the backward propagation for the [LINEAR->RELU] * (L-1) -> LINEAR -> SIGMOID group
     
@@ -372,6 +377,8 @@ def L_model_backward(AL, Y, caches):
     caches -- list of caches containing:
                 every cache of linear_activation_forward() with "relu" (it's caches[l], for l in range(L-1) i.e l = 0...L-2)
                 the cache of linear_activation_forward() with "sigmoid" (it's caches[L-1])
+    epsilon -- hyperparameter preventing division by zero
+
     
     Returns:
     grads -- A dictionary with the gradients
@@ -384,7 +391,7 @@ def L_model_backward(AL, Y, caches):
     m = AL.shape[1]
     Y = Y.reshape(AL.shape) # after this line, Y is the same shape as AL
     # Initializing the backpropagation
-    dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL)) # derivative of cost with respect to AL
+    dAL = - (np.divide(Y, AL + epsilon) - np.divide(1 - Y, 1 - AL + epsilon)) # derivative of cost with respect to AL
         
     # Lth layer (SIGMOID -> LINEAR) gradients. Inputs: "dAL, current_cache". Outputs: "grads["dAL-1"], grads["dWL"], grads["dbL"]
     current_cache = caches[L-1]
@@ -452,25 +459,31 @@ def L_layer_model(X, Y, layers_dims, learning_rate = 0.0007, mini_batch_size = 6
             # Select a minibatch
             (minibatch_X, minibatch_Y) = minibatch
 
+
+
+
             # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
             AL, caches = L_model_forward(minibatch_X, parameters)
+            
+            # Print min and max values of AL to monitor activations
+            print("🚀 Epoch {}, Minibatch: Min AL={}, Max AL={}".format(i, np.min(AL), np.max(AL)))
 
             # Compute cost and add to the cost total
-            cost_total += compute_cost(AL, minibatch_Y)
+            cost_total += compute_cost(AL, minibatch_Y, epsilon)
                     
             # Backward propagation
-            grads = L_model_backward(AL, minibatch_Y, caches)
+            grads = L_model_backward(AL, minibatch_Y, caches, epsilon)
     
             # Update parameters.
             t = t + 1 # Adam counter
             parameters, v, s, _, _ = update_parameters_with_adam(parameters, grads, v, s, t, learning_rate, beta1, beta2,  epsilon)
         
         cost_avg = cost_total / m
-        # Print the cost every 10 epochs
+        # Print the cost every 1 epochs
         if print_cost and i % 1 == 0:
             print("🚀 Cost after epoch %i: %f" %(i, cost_avg))
-        # Append cost every 10 epochs
-        if print_cost and i % 10 == 0:
+        # Append cost every 1 epochs
+        if print_cost and i % 1 == 0:
             costs.append(cost_avg)
     
     
