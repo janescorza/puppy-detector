@@ -20,7 +20,7 @@ def load_parameters(filename):
     Returns:
     dict: The parameters of the neural network.
     """
-    return np.load(filename + '.npy', allow_pickle=True).item()
+    return np.load(filename, allow_pickle=True).item()
 
 def shuffle_dataset(X, Y):
     """
@@ -91,7 +91,6 @@ def prepare_dataset(base_path, dog_folder_relative_path, cat_folder_relative_pat
         # Set labels for dogs and cats images in X
         Y = np.hstack([dog_labels, cat_labels]).reshape(1, -1)
         print("Combined Y shape:", Y.shape)
-        print("The contents of Y are:",Y)
 
         print("Shuffle dataset...")
         X, Y = shuffle_dataset(X,Y)

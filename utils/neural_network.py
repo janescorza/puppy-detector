@@ -7,20 +7,22 @@ from sklearn.utils import shuffle
 
 def initialize_parameters_he(layers_dims):
     """
+    Initialize parameters with He initialization for the weights and zeros for the biases.
+
     Arguments:
-    layer_dims -- python array (list) containing the size of each layer.
+    layer_dims -- List containing the size of each layer.
     
     Returns:
-    parameters -- python dictionary containing your parameters "W1", "b1", ..., "WL", "bL":
-                    W1 -- weight matrix of shape (layers_dims[1], layers_dims[0])
-                    b1 -- bias vector of shape (layers_dims[1], 1)
-                    ...
-                    WL -- weight matrix of shape (layers_dims[L], layers_dims[L-1])
-                    bL -- bias vector of shape (layers_dims[L], 1)
+    parameters -- Dictionary containing the parameters "W1", "b1", ..., "WL", "bL":
+                  "W1" -- weight matrix of shape (layers_dims[1], layers_dims[0])
+                  "b1" -- bias vector of shape (layers_dims[1], 1)
+                  ...
+                  "WL" -- weight matrix of shape (layers_dims[L], layers_dims[L-1])
+                  "bL" -- bias vector of shape (layers_dims[L], 1)
     """
     
     parameters = {}
-    L = len(layers_dims) - 1 # integer representing the number of layers
+    L = len(layers_dims) - 1    # Number of layers in the network
     print("🚀 ~ layers_dims:", layers_dims)
     for l in range(1, L + 1):
         parameters['W'+str(l)]= np.random.randn(layers_dims[l], layers_dims[l-1]) * np.sqrt(2./layers_dims[l-1])
@@ -29,26 +31,17 @@ def initialize_parameters_he(layers_dims):
 
 def initialize_adam(parameters) :
     """
-    Initializes v and s as two python dictionaries with:
-                - keys: "dW1", "db1", ..., "dWL", "dbL" 
-                - values: numpy arrays of zeros of the same shape as the corresponding gradients/parameters.
+    Initializes v and s for the Adam optimizer.
     
     Arguments:
-    parameters -- python dictionary containing your parameters.
-                    parameters["W" + str(l)] = Wl
-                    parameters["b" + str(l)] = bl
-    
-    Returns: 
-    v -- python dictionary that will contain the exponentially weighted average of the gradient. Initialized with zeros.
-                    v["dW" + str(l)] = ...
-                    v["db" + str(l)] = ...
-    s -- python dictionary that will contain the exponentially weighted average of the squared gradient. Initialized with zeros.
-                    s["dW" + str(l)] = ...
-                    s["db" + str(l)] = ...
+    parameters -- Dictionary containing parameters "W1", "b1", ..., "WL", "bL".
 
+    Returns:
+    v -- Dictionary that will contain the exponentially weighted average of the gradient. Initialized with zeros.
+    s -- Dictionary that will contain the exponentially weighted average of the squared gradient. Initialized with zeros.
     """
     
-    L = len(parameters) // 2 # number of layers in the neural networks
+    L = len(parameters) // 2    # number of layers in the neural networks
     v = {}
     s = {}
     
@@ -67,30 +60,30 @@ def random_mini_batches(X, Y, mini_batch_size = 64):
     
     Arguments:
     X -- input data, of shape (input size, number of examples)
-    Y -- true "label" vector (1 for blue dot / 0 for red dot), of shape (1, number of examples)
+    Y -- True "label" vector, shape (1, number of examples)
     mini_batch_size -- size of the mini-batches, integer
     
     Returns:
     mini_batches -- list of synchronous (mini_batch_X, mini_batch_Y)
     """
     
-    m = X.shape[1]      # number of training examples
+    m = X.shape[1]  # number of training examples
     mini_batches = []
 
     # Step 1: Shuffle (X, Y)
     shuffled_X, shuffled_Y = shuffle(X.T, Y.T, random_state=42)
     shuffled_X = shuffled_X.T
     shuffled_Y = shuffled_Y.T
+
     # Step 2: Partition (shuffled_X, shuffled_Y).
-    # Cases with a complete mini batch size only i.e each of 64 examples.
-    num_complete_minibatches = math.floor(m / mini_batch_size) # number of mini batches of size mini_batch_size in your partitionning
+    num_complete_minibatches = math.floor(m / mini_batch_size)  # Number of mini batches of size mini_batch_size
     for k in range(0, num_complete_minibatches):
         mini_batch_X = shuffled_X[:,k*mini_batch_size:(k+1)*mini_batch_size]
         mini_batch_Y = shuffled_Y[:,k*mini_batch_size:(k+1)*mini_batch_size]
         mini_batch = (mini_batch_X, mini_batch_Y)
         mini_batches.append(mini_batch)
     
-    # For handling the end case (last mini-batch < mini_batch_size i.e less than 64)
+    # Handling the end case (last mini-batch < mini_batch_size)
     if m % mini_batch_size != 0:
 
         mini_batch_X = shuffled_X[:,(k+1)*mini_batch_size:((k+1)*mini_batch_size)+(m % mini_batch_size)]
@@ -103,50 +96,46 @@ def random_mini_batches(X, Y, mini_batch_size = 64):
 def update_parameters_with_adam(parameters, grads, v, s, t, learning_rate = 0.01,
                                 beta1 = 0.9, beta2 = 0.999,  epsilon = 1e-8):
     """
-    Update parameters using Adam
+    Update parameters using the Adam optimization algorithm.
     
     Arguments:
-    parameters -- python dictionary containing your parameters:
-                    parameters['W' + str(l)] = Wl
-                    parameters['b' + str(l)] = bl
-    grads -- python dictionary containing your gradients for each parameters:
-                    grads['dW' + str(l)] = dWl
-                    grads['db' + str(l)] = dbl
-    v -- Adam variable, moving average of the first gradient, python dictionary
-    s -- Adam variable, moving average of the squared gradient, python dictionary
-    t -- Adam variable, counts the number of taken steps
-    learning_rate -- the learning rate, scalar.
-    beta1 -- Exponential decay hyperparameter for the first moment estimates 
-    beta2 -- Exponential decay hyperparameter for the second moment estimates 
-    epsilon -- hyperparameter preventing division by zero in Adam updates
+    parameters -- Dictionary containing your parameters "W1", "b1", ..., "WL", "bL".
+    grads -- Dictionary containing your gradients for each parameter "dW1", "db1", ..., "dWL", "dbL".
+    v -- Adam variable, moving average of the first gradient, dictionary.
+    s -- Adam variable, moving average of the squared gradient, dictionary.
+    t -- Adam variable, counts the number of steps taken.
+    learning_rate -- The learning rate, scalar.
+    beta1 -- Exponential decay hyperparameter for the first moment estimates.
+    beta2 -- Exponential decay hyperparameter for the second moment estimates.
+    epsilon -- Hyperparameter preventing division by zero in Adam updates.
 
     Returns:
-    parameters -- python dictionary containing your updated parameters 
-    v -- Adam variable, moving average of the first gradient, python dictionary
-    s -- Adam variable, moving average of the squared gradient, python dictionary
+    parameters -- Dictionary containing your updated parameters.
+    v -- Adam variable, moving average of the first gradient, dictionary.
+    s -- Adam variable, moving average of the squared gradient, dictionary.
     """
     
-    L = len(parameters) // 2                 # number of layers in the neural networks
-    v_corrected = {}                         # Initializing first moment estimate, python dictionary
-    s_corrected = {}                         # Initializing second moment estimate, python dictionary
+    L = len(parameters) // 2    # number of layers in the neural networks
+    v_corrected = {}    # Initializing first moment estimate, python dictionary
+    s_corrected = {}    # Initializing second moment estimate, python dictionary
     
     # Perform Adam update on all parameters
     for l in range(1, L + 1):
-        # Moving average of the gradients. Inputs: "v, grads, beta1". Output: "v".
+        # Moving average of the gradients
         v["dW" + str(l)] = beta1*v["dW" + str(l)] + (1-beta1)*(grads["dW" + str(l)])
         v["db" + str(l)] = beta1*v["db" + str(l)] + (1-beta1)*(grads["db" + str(l)])
 
-        # Compute bias-corrected first moment estimate. Inputs: "v, beta1, t". Output: "v_corrected".
+        # Compute bias-corrected first moment estimate
         v_corrected["dW" + str(l)] = v["dW" + str(l)] / (1-np.power(beta1, t))
         v_corrected["db" + str(l)] = v["db" + str(l)] / (1-np.power(beta1, t))
-        # Moving average of the squared gradients. Inputs: "s, grads, beta2". Output: "s".
+        # Moving average of the squared gradients
         s["dW" + str(l)] = beta2*s["dW" + str(l)] + (1-beta2)*(np.power(grads["dW" + str(l)],2))
         s["db" + str(l)] = beta2*s["db" + str(l)] + (1-beta2)*(np.power(grads["db" + str(l)],2))
-        # Compute bias-corrected second raw moment estimate. Inputs: "s, beta2, t". Output: "s_corrected".
+        # Compute bias-corrected second raw moment estimate
         s_corrected["dW" + str(l)] = s["dW" + str(l)] / (1-np.power(beta2, t))
         s_corrected["db" + str(l)] = s["db" + str(l)] / (1-np.power(beta2, t))
 
-        # Update parameters. Inputs: "parameters, learning_rate, v_corrected, s_corrected, epsilon". Output: "parameters".
+        # Update parameters
         parameters["W" + str(l)] = parameters["W" + str(l)] - learning_rate*(v_corrected["dW" + str(l)]/(np.sqrt(s_corrected["dW" + str(l)])+epsilon))
         parameters["b" + str(l)] = parameters["b" + str(l)] - learning_rate*(v_corrected["db" + str(l)]/(np.sqrt(s_corrected["db" + str(l)])+epsilon))
 
@@ -154,7 +143,7 @@ def update_parameters_with_adam(parameters, grads, v, s, t, learning_rate = 0.01
 
 def linear_forward(A, W, b):
     """
-    Implement the linear part of a layer's forward propagation.
+    Linear part of a layer's forward propagation.
 
     Arguments:
     A -- activations from previous layer (or input data): (size of previous layer, number of examples)
@@ -173,7 +162,7 @@ def linear_forward(A, W, b):
 
 def sigmoid(z):
     """
-    Compute the sigmoid of z
+    Sigmoid of z
 
     Arguments:
     z -- A scalar or numpy array of any size.
@@ -185,12 +174,13 @@ def sigmoid(z):
     z = np.clip(z, -10, 10) # To prevent overflows in the exponential calculation within the sigmoid function
     s = 1/(1+np.exp(-z))
     cache = z
+
     return s, cache
 
 
 def relu(z):
     """
-    Compute the ReLU of z
+    ReLU of z
 
     Arguments:
     z -- A scalar or numpy array of any size.
@@ -201,11 +191,12 @@ def relu(z):
     """
     r = np.maximum(0, z)
     cache = z
+
     return r, cache
 
 def linear_activation_forward(A_prev, W, b, activation):
     """
-    Implement the forward propagation for the LINEAR->ACTIVATION layer
+    Forward propagation for the LINEAR->ACTIVATION layer
 
     Arguments:
     A_prev -- activations from previous layer (or input data): (size of previous layer, number of examples)
@@ -245,8 +236,8 @@ def L_model_forward(X, parameters):
     """
 
     caches = []
-    A = X # activations in the first layer (input data)
-    L = len(parameters) // 2 # number of layers in the neural network
+    A = X   # activations in the first layer (input data)
+    L = len(parameters) // 2    # number of layers in the neural network
 
     
     # [LINEAR -> RELU]*(L-1) and adding "cache" to the "caches" list.
@@ -255,7 +246,7 @@ def L_model_forward(X, parameters):
         A_prev = A 
         A, cache = linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], activation = "relu")
         caches.append(cache)
-    # Implement LINEAR -> SIGMOID. Add "cache" to the "caches" list.
+    # LINEAR -> SIGMOID for the last layer.
     AL, cache = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], activation = "sigmoid")
     caches.append(cache)
           
@@ -263,11 +254,11 @@ def L_model_forward(X, parameters):
 
 def compute_cost(AL, Y, epsilon):
     """
-    Implement the cost function defined by equation (7).
+    Cost function for a neural network with binary classification.
 
     Arguments:
-    AL -- probability vector corresponding to your label predictions, shape (1, number of examples)
-    Y -- true "label" vector (for example: containing 0 if non-cat, 1 if cat), shape (1, number of examples)
+    AL -- probability vector corresponding to label predictions, shape (1, number of examples)
+    Y -- true "label" vector, shape (1, number of examples)
     epsilon -- hyperparameter preventing -infinity or division by zero in cost calculation
 
     Returns:
@@ -276,17 +267,16 @@ def compute_cost(AL, Y, epsilon):
     
     m = Y.shape[1]
 
-    # Compute loss from aL and y.
+    # Compute loss from AL with respect to Y .
     cost = -1/m * np.sum(np.dot(Y, np.log(AL + epsilon).T) + np.dot(1 - Y, np.log(1 - AL + epsilon).T))    
     
-    cost = np.squeeze(cost)     
-     # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
+    cost = np.squeeze(cost) # To make sure the cost is the expected integer(e.g. this turns [[17]] into 17).
 
     return cost
 
 def linear_backward(dZ, cache):
     """
-    Implement the linear portion of backward propagation for a single layer (layer l)
+    Linear portion of backward propagation for a single layer (layer l)
 
     Arguments:
     dZ -- Gradient of the cost with respect to the linear output (of current layer l)
@@ -300,16 +290,15 @@ def linear_backward(dZ, cache):
     A_prev, W, b = cache
     m = A_prev.shape[1]
 
-    # db is summed by the rows of dZ with keepdims=True
     dW = 1/m * np.dot(dZ,A_prev.T)
-    db = 1/m * np.sum(dZ,axis=1, keepdims=True)
+    db = 1/m * np.sum(dZ,axis=1, keepdims=True) # db is summed by the rows of dZ
     dA_prev = np.dot(W.T,dZ)
     
     return dA_prev, dW, db
 
 def relu_backward(dA, Z):
     """
-    Compute the gradient of the ReLU function
+    Gradient of the ReLU function
 
     Arguments:
     dA -- post-activation gradient for current layer l
@@ -318,13 +307,14 @@ def relu_backward(dA, Z):
     Returns:
     dZ -- Gradient of the cost with respect to Z
     """
-    dZ = np.array(dA, copy=True) # just converting dz to a correct object.
-    dZ[Z <= 0] = 0
+    dZ = np.array(dA, copy=True)    # initialize dZ to be a copy of dA
+    dZ[Z <= 0] = 0  # Applying the derivative of the ReLu activation function.
+
     return dZ
 
 def sigmoid_backward(dA, Z):
     """
-    Compute the gradient of the sigmoid function
+    Gradient of the sigmoid function
 
     Arguments:
     dA -- post-activation gradient for current layer l
@@ -335,12 +325,13 @@ def sigmoid_backward(dA, Z):
     """
     s, cache = sigmoid(Z)
     dZ = dA * s * (1 - s)
+
     return dZ
 
 
 def linear_activation_backward(dA, cache, activation):
     """
-    Implement the backward propagation for the LINEAR->ACTIVATION layer.
+    Backward propagation for the LINEAR->ACTIVATION layer.
     
     Arguments:
     dA -- post-activation gradient for current layer l 
@@ -366,31 +357,29 @@ def linear_activation_backward(dA, cache, activation):
 
 def L_model_backward(AL, Y, caches, epsilon):
     """
-    Implement the backward propagation for the [LINEAR->RELU] * (L-1) -> LINEAR -> SIGMOID group
+    Backward propagation for the [LINEAR->RELU] * (L-1) -> LINEAR -> SIGMOID model
     
     Arguments:
     AL -- probability vector, output of the forward propagation (L_model_forward())
-    Y -- true "label" vector (containing 0 if non-cat, 1 if cat)
+    Y -- true "label" vector
     caches -- list of caches containing:
-                every cache of linear_activation_forward() with "relu" (it's caches[l], for l in range(L-1) i.e l = 0...L-2)
-                the cache of linear_activation_forward() with "sigmoid" (it's caches[L-1])
+                every cache of linear_activation_forward() with "relu" (it caches[l], for l in range(L-1))
+                the cache of linear_activation_forward() with "sigmoid" (it caches[L-1])
     epsilon -- hyperparameter preventing division by zero
 
     
     Returns:
     grads -- A dictionary with the gradients
-             grads["dA" + str(l)] = ... 
-             grads["dW" + str(l)] = ...
-             grads["db" + str(l)] = ... 
     """
     grads = {}
     L = len(caches) # the number of layers
     m = AL.shape[1]
     Y = Y.reshape(AL.shape) # after this line, Y is the same shape as AL
+
     # Initializing the backpropagation
-    dAL = - (np.divide(Y, AL + epsilon) - np.divide(1 - Y, 1 - AL + epsilon)) # derivative of cost with respect to AL
+    dAL = - (np.divide(Y, AL + epsilon) - np.divide(1 - Y, 1 - AL + epsilon))   # derivative of the cost with respect to AL
         
-    # Lth layer (SIGMOID -> LINEAR) gradients. Inputs: "dAL, current_cache". Outputs: "grads["dAL-1"], grads["dWL"], grads["dbL"]
+    # Lth layer (SIGMOID -> LINEAR) gradients
     current_cache = caches[L-1]
     dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, "sigmoid")
     grads["dA" + str(L-1)] = dA_prev_temp
@@ -401,7 +390,6 @@ def L_model_backward(AL, Y, caches, epsilon):
     for l in reversed(range(L-1)):
 
         # lth layer: (RELU -> LINEAR) gradients.
-        # Inputs: "grads["dA" + str(l + 1)], current_cache". Outputs: "grads["dA" + str(l)] , grads["dW" + str(l + 1)] , grads["db" + str(l + 1)] 
         current_cache = caches[l]
         dA_prev_temp, dW_temp, db_temp = linear_activation_backward(grads["dA" + str(l+1)], current_cache, "relu")
         grads["dA" + str(l)] = dA_prev_temp
@@ -413,7 +401,7 @@ def L_model_backward(AL, Y, caches, epsilon):
 def L_layer_model(X, Y, layers_dims, learning_rate = 0.0007, mini_batch_size = 64,
           beta1 = 0.9, beta2 = 0.999,  epsilon = 1e-8, num_epochs = 5000, print_cost = True):
     """
-    Implements a L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
+    L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
     
     Arguments:
     X -- input data, of shape (n_x, number of examples)
@@ -427,36 +415,33 @@ def L_layer_model(X, Y, layers_dims, learning_rate = 0.0007, mini_batch_size = 6
     beta2 -- Exponential decay hyperparameter for the past squared gradients estimates 
     epsilon -- hyperparameter preventing division by zero in Adam updates
     num_epochs -- number of epochs
-    print_cost -- if True, it prints the cost every 100 epochs
+    print_cost -- if True, it prints the cost every certain number of epochs
     
     Returns:
     parameters -- parameters learnt by the model. They can then be used to predict.
     """
 
-    L = len(layers_dims)             # number of layers in the neural networks
-    costs = []                       # to keep track of the cost
-    t = 0                            # initializing the counter required for Adam update
-    m = X.shape[1]           # number of examples accross all minibatches
+    L = len(layers_dims)    # number of layers in the neural networks
+    costs = []
+    t = 0   # initializing the counter required for Adam update
+    m = X.shape[1]  # number of examples accross all minibatches
     
-    # Parameters initialization.
     parameters = initialize_parameters_he(layers_dims)
 
     v,s = initialize_adam(parameters)
 
     for i in range(num_epochs):
 
-        # Define the random minibatches.
-        print("Prepare minibatches...")
         print("Prepare minibatches for epoch number %i..." %(i))
         minibatches = random_mini_batches(X, Y, mini_batch_size)
         print("Minibatches prepared")
         cost_total = 0
 
-        start_epoch = time.time()  # Start timing the epoch
+        start_epoch = time.time()
 
         for j, minibatch in enumerate(minibatches):
-            # Select a minibatch
-            (minibatch_X, minibatch_Y) = minibatch
+            # selection of a minibatch
+            (minibatch_X, minibatch_Y) = minibatch 
 
             start_forward = time.time()
             # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
@@ -473,11 +458,11 @@ def L_layer_model(X, Y, layers_dims, learning_rate = 0.0007, mini_batch_size = 6
     
             # Update parameters.
             start_update = time.time()
-            t = t + 1 # Adam counter
+            t = t + 1 # Adam counter increase
             parameters, v, s, _, _ = update_parameters_with_adam(parameters, grads, v, s, t, learning_rate, beta1, beta2,  epsilon)
             update_time = time.time() - start_update
 
-            print(f"Epoch {i}, Minibatch {j}: Min AL={np.min(AL)}, Max AL={np.max(AL)} Forward {forward_time:.2f}s, Backward {backward_time:.2f}s, Update {update_time:.2f}s")
+            print(f"Epoch {i}, Minibatch {j}: Forward {forward_time:.2f}s, Backward {backward_time:.2f}s, Update {update_time:.2f}s Min AL={np.min(AL)}, Max AL={np.max(AL)}")
         
         epoch_time = time.time() - start_epoch
         print(f"Epoch {i} completed in {epoch_time:.2f} seconds")
