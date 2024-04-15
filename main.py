@@ -1,9 +1,10 @@
 import os
+import time
 import numpy as np
+import matplotlib.pyplot as plt
 from utils.image_preprocessing import preprocess_image
 from utils.neural_network import L_layer_model, L_model_forward
-from utils.prepare_dataset import prepare_dataset
-import matplotlib.pyplot as plt
+from utils.prepare_dataset import load_parameters, prepare_dataset, save_data
 
 def prepare_model_hyperparameters(X_shape):
     """
@@ -24,8 +25,10 @@ def prepare_model_hyperparameters(X_shape):
 
     layers_dims = (n_x, n_h_1, n_h_2, n_h_3, n_y)
     learning_rate = 0.001
+    mini_batch_size = 128
+    num_epochs = 5
 
-    return layers_dims, learning_rate
+    return layers_dims, learning_rate, mini_batch_size, num_epochs
 
 def evaluate_model(parameters, dev_x, dev_y):
     AL, _ = L_model_forward(dev_x, parameters)
@@ -45,39 +48,59 @@ def predict_image(image_path, parameters):
 
 def main():
 
-    path_to_dog_train_set = "data/training_set/dogs"
-    path_to_cat_train_set = "data/training_set/cats"
-    path_to_train_output_folder = "data/training_set/"
+    relative_path_to_dog_train_set = "data/training_set/dogs"
+    relative_path_to_cat_train_set = "data/training_set/cats"
+    relative_path_to_train_output_folder = "data/training_set/"
 
-    path_to_dog_dev_set = "data/dev_set/dogs"
-    path_to_cat_dev_set = "data/dev_set/cats"
-    path_to_dev_output_folder = "data/dev_set/"
+    relative_path_to_dog_dev_set = "data/dev_set/dogs"
+    relative_path_to_cat_dev_set = "data/dev_set/cats"
+    relative_path_to_dev_output_folder = "data/dev_set/"
+
+    relalative_path_to_params_output_folder = "model/params"
 
     base_path = os.path.dirname(__file__)
 
+    path_to_params_output_folder =  os.path.join(base_path, relalative_path_to_params_output_folder)  
 
-    print("Preparing training dataset...")
-    train_x, train_y = prepare_dataset(base_path, path_to_dog_train_set, path_to_cat_train_set, path_to_train_output_folder)
-    # train_x, train_y, train_mean, train_std = prepare_dataset(base_path, path_to_dog_train_set, path_to_cat_train_set, path_to_train_output_folder)
-    print("Training dataset prepared")
 
-    print("Prepare hyperparameters...")
-    layers_dims, learning_rate = prepare_model_hyperparameters(train_x.shape)
-    print("Hyperparameters prepared")
+    # train and load could be used as input words once this is no longer in dev
+    train_or_load = input("Would you like to train (y) a new model or instead use existing parameters (n)? ")
 
-    print("Train the model with several epochs....")
-    # Train the model
-    parameters, costs = L_layer_model(train_x, train_y, layers_dims, num_epochs = 5, print_cost = True)
+    if train_or_load.lower() == 'n' and os.path.exists(path_to_params_output_folder):
+        parameters = load_parameters(path_to_params_output_folder)
+        print("Parameters loaded successfully.")
+    else:
+        if not os.path.exists(path_to_params_output_folder):
+            print("No parameters file found. Proceeding to train the model.")
 
-    # plot the training cost
-    plt.plot(costs)
-    plt.ylabel('cost')
-    plt.xlabel('epochs (per 1)')
-    plt.title("Learning rate = " + str(learning_rate))
-    plt.show()
+        start_load = time.time()
+        print("Preparing training dataset...")
+        train_x, train_y = prepare_dataset(base_path, relative_path_to_dog_train_set, relative_path_to_cat_train_set, relative_path_to_train_output_folder)
+        # train_x, train_y, train_mean, train_std = prepare_dataset(base_path, relative_path_to_dog_train_set, relative_path_to_cat_train_set, relative_path_to_train_output_folder)
+        print("Training dataset prepared")
+
+        print("Prepare hyperparameters...")
+        layers_dims, learning_rate, mini_batch_size, num_epochs = prepare_model_hyperparameters(train_x.shape)
+        print("Hyperparameters prepared")
+
+        print("Train the model with several epochs....")
+        # Train the model
+        parameters, costs = L_layer_model(train_x, train_y, layers_dims, learning_rate=learning_rate, mini_batch_size=mini_batch_size, num_epochs = num_epochs, print_cost = True)
+
+        # plot the training cost
+        plt.plot(costs)
+        plt.ylabel('cost')
+        plt.xlabel('epochs (per 1)')
+        plt.title("Learning rate = " + str(learning_rate))
+        plt.show()
+
+        save_data(parameters, path_to_params_output_folder)
+        
+        load_time = time.time() - start_load  # Time taken to load and preprocess data
+        print(f"Training complete and parameters saved in {load_time:.2f} seconds")
 
     print("Preparing dev dataset...")
-    dev_x, dev_y,_,_ = prepare_dataset(base_path, path_to_dog_dev_set, path_to_cat_dev_set, path_to_dev_output_folder)
+    dev_x, dev_y = prepare_dataset(base_path, relative_path_to_dog_dev_set, relative_path_to_cat_dev_set, relative_path_to_dev_output_folder)
     print("Training dataset prepared")
 
     # Evaluate the model on dev

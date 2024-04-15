@@ -10,6 +10,18 @@ def save_data(data, filename):
 def load_data(filename):
     return np.load(filename + '.npy')
 
+def load_parameters(filename):
+    """
+    Load neural network parameters from a file.
+
+    Args:
+    filename (str): The path to the file from which to load the parameters.
+
+    Returns:
+    dict: The parameters of the neural network.
+    """
+    return np.load(filename + '.npy', allow_pickle=True).item()
+
 def shuffle_dataset(X, Y):
     """
     Shuffle the dataset using sklearn's shuffle to ensure X and Y remain in sync.
@@ -81,15 +93,15 @@ def prepare_dataset(base_path, dog_folder_relative_path, cat_folder_relative_pat
         print("Combined Y shape:", Y.shape)
         print("The contents of Y are:",Y)
 
+        print("Shuffle dataset...")
+        X, Y = shuffle_dataset(X,Y)
+        # X_shuffled, Y_shuffled = shuffle(X, Y, random_state=42)
+        print("Dataset shuffled")
+
         # Save processed data
         save_data(X, x_path)
         save_data(Y, y_path)
     
-    # TODO: consider storing it shuffled
-    print("Shuffle dataset...")
-    X_shuffled, Y_shuffled = shuffle_dataset(X,Y)
-    # X_shuffled, Y_shuffled = shuffle(X, Y, random_state=42)
-    print("Dataset shuffled")
 
-    print("Images: ", X_shuffled.shape, "Labels: ", Y_shuffled.shape)
-    return X_shuffled, Y_shuffled
+    print("Images: ", X.shape, "Labels: ", Y.shape)
+    return X, Y

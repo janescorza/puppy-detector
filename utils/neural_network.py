@@ -1,6 +1,7 @@
 
 import numpy as np
 import math
+import time
 from sklearn.utils import shuffle
 
 
@@ -276,15 +277,11 @@ def compute_cost(AL, Y, epsilon):
     m = Y.shape[1]
 
     # Compute loss from aL and y.
-    # cost = -1/m * np.sum(np.dot(Y, np.log(AL).T) + np.dot(1 - Y, np.log(1 - AL).T))
-    cost = -1/m * np.sum(np.dot(Y, np.log(AL + epsilon).T) + np.dot(1 - Y, np.log(1 - AL + epsilon).T))
-
-    
+    cost = -1/m * np.sum(np.dot(Y, np.log(AL + epsilon).T) + np.dot(1 - Y, np.log(1 - AL + epsilon).T))    
     
     cost = np.squeeze(cost)     
      # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
 
-    
     return cost
 
 def linear_backward(dZ, cache):
@@ -455,29 +452,36 @@ def L_layer_model(X, Y, layers_dims, learning_rate = 0.0007, mini_batch_size = 6
         print("Minibatches prepared")
         cost_total = 0
 
-        for minibatch in minibatches:
+        start_epoch = time.time()  # Start timing the epoch
+
+        for j, minibatch in enumerate(minibatches):
             # Select a minibatch
             (minibatch_X, minibatch_Y) = minibatch
 
-
-
-
+            start_forward = time.time()
             # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
             AL, caches = L_model_forward(minibatch_X, parameters)
+            forward_time = time.time() - start_forward
             
-            # Print min and max values of AL to monitor activations
-            print("🚀 Epoch {}, Minibatch: Min AL={}, Max AL={}".format(i, np.min(AL), np.max(AL)))
-
             # Compute cost and add to the cost total
             cost_total += compute_cost(AL, minibatch_Y, epsilon)
                     
+            start_backward = time.time()
             # Backward propagation
             grads = L_model_backward(AL, minibatch_Y, caches, epsilon)
+            backward_time = time.time() - start_backward
     
             # Update parameters.
+            start_update = time.time()
             t = t + 1 # Adam counter
             parameters, v, s, _, _ = update_parameters_with_adam(parameters, grads, v, s, t, learning_rate, beta1, beta2,  epsilon)
+            update_time = time.time() - start_update
+
+            print(f"Epoch {i}, Minibatch {j}: Min AL={np.min(AL)}, Max AL={np.max(AL)} Forward {forward_time:.2f}s, Backward {backward_time:.2f}s, Update {update_time:.2f}s")
         
+        epoch_time = time.time() - start_epoch
+        print(f"Epoch {i} completed in {epoch_time:.2f} seconds")
+
         cost_avg = cost_total / m
         # Print the cost every 1 epochs
         if print_cost and i % 1 == 0:
