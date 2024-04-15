@@ -35,5 +35,9 @@ Ready to unleash the power of Deep Learning for adorable purposes? Check out the
    python3 main.py
    ```
 
-**Note on Overfitting:**
-The model currently exhibits overfitting to the training data. Potential improvements include enlarging the training dataset, augmenting data, and expanding the network with deeper or larger layers. These enhancements are pending due to current limitations with my computational resources. However, I am actively seeking solutions to augment these resouces and keep improving this repository.
+**Note on Overfitting/Underfitting:**
+The model currently performs poorly for this usecase, basically due to not using a convolutional network, to what essentially is an image classification problem. 
+The point of this repository is not to provide excellent classification of cats and dogs, but rather show how a neural network can be built from the chore and upwards. 
+Potential improvements include: making the neural network deeper to better catch more detailed features and then enlarging the training dataset, augmenting data. 
+These enhancements are pending due to current limitations with my computational resources. 
+However, I am open to discussing how this repository could be fixed and improved and trying to run a deeper version of it with more resources.

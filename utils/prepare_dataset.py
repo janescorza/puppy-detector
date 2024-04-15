@@ -43,26 +43,21 @@ def shuffle_dataset(X, Y):
 
     return X_shuffled, Y_shuffled
 
-def prepare_dataset(base_path, dog_folder_relative_path, cat_folder_relative_path, output_folder_relative_path, force_preprocess=False):
+def prepare_dataset(dog_folder_path, cat_folder_path, output_folder, force_preprocess=False):
     """
     Prepare the dataset by processing all dog and cat images, creating labels,
     and combining them into a single array of normalized vectors and labels.
     
     Arguments:
-    base_path -- base path of the main script
-    dog_folder_relative_path -- relative path to the folder containing the dog images
-    cat_folder_relative_path -- relative path to the folder containing the cat images
-    output_folder_relative_path -- relative path to the folder that should contain the preprocessed data
+    dog_folder_path -- path to the folder containing the dog images
+    cat_folder_path -- path to the folder containing the cat images
+    output_folder -- path to the folder that should contain the preprocessed data
     force_preprocess -- boolean flag to force the preprocessing of the data even if it is already saved
     
     Returns:
     X -- a numpy array of shape (length*height*depth, number of image) containing the normalized image vectors
     Y -- a numpy array of shape (1, number of images) containing the labels (1 for dog, 0 for cat)
     """
-
-    dog_folder_path = os.path.join(base_path, dog_folder_relative_path)  
-    cat_folder_path = os.path.join(base_path, cat_folder_relative_path)  
-    output_folder = os.path.join(base_path, output_folder_relative_path)  
 
     # Evaluate if we have preprocessed data
     x_path = os.path.join(output_folder, 'X')

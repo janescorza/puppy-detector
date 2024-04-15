@@ -3,7 +3,6 @@ import numpy as np
 import os
 
 
-# def load_image(image_path, size=(64, 64)):
 def load_image(image_path, size=(256, 256)):
     """
     Load an image from a file path and convert it to a numpy array.
