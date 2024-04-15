@@ -8,6 +8,15 @@ from utils.prepare_dataset import load_parameters, prepare_dataset, save_data
 
 
 def initialize_paths(base_path):
+    """
+    Constructs and returns a dictionary of key paths used throughout the script.
+
+    Arguments:
+    base_path -- String, the base directory of the script (typically where the script is running from).
+
+    Returns:
+    Dictionary with keys pointing to specific directory paths needed for training, development, and parameter storage.
+    """
     paths = {
         "train_dogs": "data/training_set/dogs",
         "train_cats": "data/training_set/cats",
@@ -48,6 +57,15 @@ def prepare_model_hyperparameters(X_shape):
     return layers_dims, learning_rate, mini_batch_size, num_epochs
 
 def train_model(paths):
+    """
+    Conducts the model training process using the dataset and saves the trained parameters.
+
+    Arguments:
+    paths -- Dictionary, containing paths to the training data and where to save the parameters.
+
+    Returns:
+    parameters -- Dictionary containing the trained model parameters.
+    """
     start_load = time.time()
     print("Preparing training dataset...")
     train_x, train_y = prepare_dataset(paths["train_dogs"], paths["train_cats"], paths["train_output"])
@@ -74,6 +92,15 @@ def train_model(paths):
     return parameters
 
 def load_or_train_model(paths):
+    """
+    Loads existing model parameters or trains a new model if no parameters are found.
+
+    Arguments:
+    paths -- Dictionary, containing paths where model parameters might be stored or need to be saved.
+
+    Returns:
+    Dictionary of the model parameters.
+    """
     if os.path.exists(paths["params_output"]):
         parameters = load_parameters(paths["params_output"])
         print("Parameters loaded successfully.")
