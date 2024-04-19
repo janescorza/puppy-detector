@@ -22,6 +22,13 @@ But most importantly, for you as a reader:
 
 * **Mini-batch gradient descent** (Breaking data into smaller chunks): This enables faster updates and often improves generalization, as the model sees a more diverse set of examples in each iteration.
 
+### Update: New Kitty Identifier DLC! 🐈🐈‍⬛🐈🐈‍⬛🐈🐈‍⬛
+
+To further expand the capabilities of this project, I have added a new feature to identify not just puppies, but also kittens! The updated code can now **classify images kittens from a specific smaller dataset**. I have added this capability to show **how the core neural network architecture can be adapted and retrained to handle different types of image classification tasks**. And eventhough a classic
+neural network is not the optimal solution for complex image classification, this project is a very valuable learning resource to understand the fundamentals of neural network design and optimization.
+
+The kitty images are 48x48 pixels, which makes feature learning easier for a smaller network and **allows it to be trained on a laptop** and get very high precision (75-98.9%). To prevent overfitting, data augmentation or more input data would be a good improvement.
+
 ### 🐶💻🚀 Ready to Explore? 🐶💻🚀
 Then dive into the code, tweak it, break it, and learn from it. If you have questions, suggestions, or need clarification on any aspect, don't hesitate to reach out. Let's push the boundaries of what we can learn from neural networks, one line of code at a time!
 
@@ -40,6 +47,7 @@ Then dive into the code, tweak it, break it, and learn from it. If you have ques
    python3 main.py
    ```
 
+
 ### **Learning from Limitations 🚧🎓**
 
 The journey of developing this neural network from scratch has been **immensely educational for me, allowing me to work hands-on with many concepts I have been learning**. But at the same time, revealing both the limitations of simple architectures for complex image classification tasks. Here’s why this model remains a very important part of the learning curve:
@@ -51,7 +59,6 @@ The journey of developing this neural network from scratch has been **immensely 
 * **Paving the Way for My Exploration**: Recognizing the constraints of this model has **set the stage for my next venture into implementing a convolutional neural network (CNNs)**. Using frameworks like TensorFlow or PyTorch, I plan to explore and demonstrate how CNNs can more effectively tackle the problem of image classification, providing a robust platform for both learning-by-doing and applying all that I have learned in the Deep Learning course.
 
 * **Invitation to Collaboration**: I welcome you to join me in this learning journey. Feel free to fork the repository, experiment with the code, and provide feedback. 
-
 
 ### ✨ Continuing the Learning Journey ✨
 Moving forward, I am excited to dive into CNNs, NLP and more... and share those experiences, drawing comparisons and highlighting what I find the most interesting in this journey of exploration. 

@@ -1,5 +1,7 @@
 import os
+import h5py
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.utils import shuffle
 
 from utils.image_preprocessing import preprocess_images_in_folder
@@ -42,6 +44,48 @@ def shuffle_dataset(X, Y):
     print("Y shape after shuffle:", Y_shuffled.shape)
 
     return X_shuffled, Y_shuffled
+
+def load_small_dataset():
+    train_dataset = h5py.File('data/training_set/train_catvnoncat.h5', "r")
+    train_set_x_orig = np.array(train_dataset["train_set_x"][:]) # train set features
+    train_set_y_orig = np.array(train_dataset["train_set_y"][:]) # train set labels
+
+    test_dataset = h5py.File('data/test_set/test_catvnoncat.h5', "r")
+    test_set_x_orig = np.array(test_dataset["test_set_x"][:]) # test set features
+    test_set_y_orig = np.array(test_dataset["test_set_y"][:]) # test set labels
+    
+    classes = np.array(test_dataset["list_classes"][:])
+
+    
+    train_set_y_orig = train_set_y_orig.reshape((1, train_set_y_orig.shape[0]))
+    test_set_y_orig = test_set_y_orig.reshape((1, test_set_y_orig.shape[0]))
+    
+    return train_set_x_orig, train_set_y_orig, test_set_x_orig, test_set_y_orig, classes
+
+
+def prepare_small_dataset():
+    train_x_orig, train_y, test_x_orig, test_y, classes = load_small_dataset()
+    show_sample = input("Would you like to see an example of a picture in the dataset? (y/n)")
+    if show_sample.lower() == 'y':
+        index = 50
+        plt.imshow(train_x_orig[index])
+        plt.show()
+        print ("y = " + str(train_y[0,index]) + ". It's a " + classes[train_y[0,index]].decode("utf-8") +  " picture.")
+        
+    m_train = train_x_orig.shape[0]
+    print ("Number of training examples: " + str(m_train))
+    print ("train_x_orig shape: " + str(train_x_orig.shape))
+    print ("test_x_orig shape: " + str(test_x_orig.shape))
+    # Reshape to flatten dimensions
+    train_x_flatten = train_x_orig.reshape(train_x_orig.shape[0], -1).T
+    test_x_flatten = test_x_orig.reshape(test_x_orig.shape[0], -1).T
+
+    train_x = train_x_flatten/255.
+    test_x = test_x_flatten/255.
+
+    print ("train_x's shape: " + str(train_x.shape))
+    return train_x, train_y, test_x, test_y, classes
+
 
 def prepare_dataset(dog_folder_path, cat_folder_path, output_folder, force_preprocess=False):
     """

@@ -268,7 +268,8 @@ def compute_cost(AL, Y, epsilon):
     m = Y.shape[1]
 
     # Compute loss from AL with respect to Y .
-    cost = -1/m * np.sum(np.dot(Y, np.log(AL + epsilon).T) + np.dot(1 - Y, np.log(1 - AL + epsilon).T))    
+    cost = -(1./m) * (np.dot(Y, np.log(AL + epsilon).T) + np.dot(1-Y, np.log(1-AL + epsilon).T))
+
     
     cost = np.squeeze(cost) # To make sure the cost is the expected integer(e.g. this turns [[17]] into 17).
 
@@ -432,9 +433,7 @@ def L_layer_model(X, Y, layers_dims, learning_rate = 0.0007, mini_batch_size = 6
 
     for i in range(num_epochs):
 
-        print("Prepare minibatches for epoch number %i..." %(i))
         minibatches = random_mini_batches(X, Y, mini_batch_size)
-        print("Minibatches prepared")
         cost_total = 0
 
         start_epoch = time.time()
@@ -462,7 +461,8 @@ def L_layer_model(X, Y, layers_dims, learning_rate = 0.0007, mini_batch_size = 6
             parameters, v, s, _, _ = update_parameters_with_adam(parameters, grads, v, s, t, learning_rate, beta1, beta2,  epsilon)
             update_time = time.time() - start_update
 
-            print(f"Epoch {i}, Minibatch {j}: Forward {forward_time:.2f}s, Backward {backward_time:.2f}s, Update {update_time:.2f}s Min AL={np.min(AL)}, Max AL={np.max(AL)}")
+            # Uncomment for detailed timing information
+            # print(f"Epoch {i}, Minibatch {j}: Forward {forward_time:.2f}s, Backward {backward_time:.2f}s, Update {update_time:.2f}s Min AL={np.min(AL)}, Max AL={np.max(AL)}")
         
         epoch_time = time.time() - start_epoch
         print(f"Epoch {i} completed in {epoch_time:.2f} seconds")
