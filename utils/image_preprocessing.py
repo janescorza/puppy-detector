@@ -14,7 +14,7 @@ def load_image(image_path, size=(256, 256)):
     image_array -- numpy array representation of the image
     """
     image = Image.open(image_path)
-    image = image.resize(size) # TODO consider effect of resizing
+    image = image.resize(size)
     image_array = np.array(image)
     return image_array
 
@@ -43,24 +43,17 @@ def normalize_image(image_vector):
     return normalized_vector
 
 def preprocess_image(image_path):
+    """
+    Preprocess a single image by loading, vectorizing, and normalizing it.
+
+    Arguments:
+    image_path -- path to the image file
+    
+    """
     image_array = load_image(image_path)
     image_vector = image2vector(image_array)
     normalized_vector = normalize_image(image_vector)
     return normalized_vector
-
-# def preprocess_single_image(image_path, mean, std):
-#     """
-#     Preprocess a single image by loading, vectorizing, and normalizing it.
-
-#     Arguments:
-#     image_path -- path to the image file
-#     mean -- mean of the train dataset
-#     std -- standard deviation of train the dataset
-#     """
-#     normalized_image_vector = preprocess_image(image_path)
-#     # Normalize using the mean and std from training data
-#     standardized_image = (normalized_image_vector - mean) / std
-#     return standardized_image
 
 
 def preprocess_images_in_folder(folder_path):
@@ -82,12 +75,3 @@ def preprocess_images_in_folder(folder_path):
     # Stack vectors horizontaly to get an array with shape (length*height*depth, number of images) 
     normalized_images = np.hstack(normalized_vectors)
     return normalized_images
-
-    # # Compute mean and std deviation for future use
-    # mean = np.mean(normalized_images, axis=1, keepdims=True)
-    # std = np.std(normalized_images, axis=1, keepdims=True)
-    # # Normalize using computed mean and std
-    # standardized_images = (normalized_images - mean) / std
-
-
-    # return standardized_images, mean, std
