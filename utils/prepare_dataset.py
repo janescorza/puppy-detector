@@ -7,9 +7,25 @@ from sklearn.utils import shuffle
 from utils.image_preprocessing import preprocess_images_in_folder
 
 def save_data(data, filename):
+    """
+    Save data as a numpy array file.
+
+    Args:
+    data (numpy.ndarray): The data to save.
+    filename (str): The path and filename without extension where the data will be saved.
+    """
     np.save(filename, data)
 
 def load_data(filename):
+    """
+    Load data from a numpy array file.
+
+    Args:
+    filename (str): The path and filename without extension to load the data from.
+
+    Returns:
+    numpy.ndarray: The data loaded from the numpy file.
+    """
     return np.load(filename + '.npy')
 
 def load_parameters(filename):
@@ -46,6 +62,13 @@ def shuffle_dataset(X, Y):
     return X_shuffled, Y_shuffled
 
 def load_small_dataset():
+    """
+    Load a smaller dataset from HDF5 files containing training and testing data.
+
+    Returns:
+    tuple of numpy.ndarray: Returns training features, training labels, test features,
+                            test labels, and classes from the dataset.
+    """
     train_dataset = h5py.File('data/training_set/train_catvnoncat.h5', "r")
     train_set_x_orig = np.array(train_dataset["train_set_x"][:]) # train set features
     train_set_y_orig = np.array(train_dataset["train_set_y"][:]) # train set labels
@@ -64,6 +87,13 @@ def load_small_dataset():
 
 
 def prepare_small_dataset():
+    """
+    Prepares a small dataset for use, displays a sample image on request, and reshapes
+    and normalizes image data for training and testing.
+
+    Returns:
+    tuple of numpy.ndarray: Normalized training and testing data, labels, and classes.
+    """
     train_x_orig, train_y, test_x_orig, test_y, classes = load_small_dataset()
     show_sample = input("Would you like to see an example of a picture in the dataset? (y/n)")
     if show_sample.lower() == 'y':
